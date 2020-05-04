@@ -1,26 +1,26 @@
-const createError = require('http-errors');
-const express = require('express');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const app = express();
-const port = process.env.PORT || 8080;
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+const createError = require('http-errors'); // 에러 모듈. 안씀
+const express = require('express'); // express, 서버 만들어주는 모듈. api 서버 만들 때 사용
+const path = require('path'); // 디렉토리 관련 어플. 디렉토리 찾아줌.
+const cookieParser = require('cookie-parser'); // 클라이언트로부터 쿠키 받아오는 모듈
+const cors = require('cors'); // 한 호스팅 안에서 각기 다른 포트로부터 상호 통신 할 때 에러 안 나게 해주는 모듈
+const bodyParser = require('body-parser'); // body에 있는 내용을 받아오는 모듈. rest api 제작할 때 사용
+const app = express(); // express 선언
+const port = process.env.PORT || 8080; // port 중에서 8000번 포트 사용
+app.use(bodyParser.json()); // 바디파서의 jason 사용
+app.use(bodyParser.urlencoded({ extended: true })); // 중첩된 객체를 사용하게 할지 말지에 관한것. true니까 사용
 
-//cors
+//cors 사용
 app.use(cors());
 
 /* use router class */
-const user = require('./routes/api/user/index');
+const user = require('./routes/api/user/index'); // user 모듈을 가져다 쓰겠다. 이렇게 선언함으로써 user api가 동작하게 됨. 다른 모듈도 똑같이 여기서 이런식으로 선언해 줘야 함
 
 /* /users 요청을 모두 /user/index.js로 */
-app.use('/users', user);
+app.use('/users', user); // api의 경로 설정해 준 것. 위에서 선언한 user를 어느 경로의 url로 요청했을 때 반응하게 해줄 것인가에 관한 것. /categori, /friends 이런식으로 우리가 쓰는 url 뒤에 /로 이어서 써주면 그 url을 통해 모듈로 요청이 가능하게 됨
 
 
-app.listen(port, () => console.log(`Listening on port ${port}`));
+app.listen(port, () => console.log(`Listening on port ${port}`)); // 서버 가동시켜줌
 
-module.exports = app;
+module.exports = app; // 이 app.js자체도 모듈로써 export
 
 

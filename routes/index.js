@@ -1,4 +1,4 @@
-var express = require('express');
+var express = require('express'); // express 사용
 var router = express.Router();
 
 /* GET home page. */

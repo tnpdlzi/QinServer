@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="66cf208f-dd0d-4cd3-8dcf-0a3d84c1e70a" name="Default Changelist" comment="" />
+    <list default="true" id="66cf208f-dd0d-4cd3-8dcf-0a3d84c1e70a" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/api/user/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/api/user/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/api/user/user.controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/api/user/user.controller.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/index.js" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="ProjectId" id="1b4fpN14k1nf9JbRHL81dZBVj8E" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../STHN_MGMT" />
     <property name="node.js.detected.package.eslint" value="true" />
@@ -45,11 +57,27 @@
       <workItem from="1587908177411" duration="28000" />
       <workItem from="1587974920205" duration="1834000" />
       <workItem from="1587979187925" duration="8013000" />
-      <workItem from="1588036843621" duration="19000" />
+      <workItem from="1588036843621" duration="2528000" />
+      <workItem from="1588040421309" duration="134000" />
+      <workItem from="1588401803952" duration="359000" />
+      <workItem from="1588601112496" duration="1737000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>
