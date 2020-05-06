@@ -5,6 +5,7 @@ router.post('/search', controller.search) // 컨트롤러에서 search로 export
 router.get('/get', controller.get) // get이라는 모듈을 get방식으로 url 배정
 router.post('/register', controller.register) // 동일
 router.post('/login', controller.login)
+router.post('/gameInfo_change', controller.gameInfo_change)
 
 
 module.exports = router; // 위의 애들 한번에 exports

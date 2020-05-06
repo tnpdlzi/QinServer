@@ -139,3 +139,91 @@ exports.login = (req,res,next) => {
     })
 
 }
+
+
+
+
+
+
+// side bar
+
+// 게임정보 변경
+/*
+exports.gameInfo_change = (req, res) => {
+
+    let usergameID = req.body.usergameID; // 바디에 있는 usergameID는 gameID로
+    let tierID = req.body.tierID; // 바디에 있는 tierID는 tierID로
+    let uID = req.body.uID; // 바디에 있는 uID는 uID로
+
+    console.log(usergameID, tierID, uID);
+
+    connection.query(
+        'UPDATE UserGame SET tierID = ' + tierID + '  WHERE uID = ' + uID + ';', // 해당 uID가 맞으면  gameID, tierID 수정
+        (err, rows, fields) => { //여긴 몰라
+            if(rows != null){
+                res.send(rows);
+            } else{
+                res.send('NO');
+            }
+        }
+    )
+
+}
+*/
+
+
+exports.gameInfo_change = (req, res) => {
+
+    let usergameID = req.body.usergameID; // 바디에 있는 usergameID는 gameID로
+    let tierID = req.body.tierID; // 바디에 있는 tierID는 tierID로
+    let uID = req.body.uID; // 바디에 있는 uID는 uID로
+
+    console.log(usergameID, tierID, uID);
+
+    connection.query(
+        'UPDATE UserGame SET tierID = ' + tierID + '  WHERE uID = ' + uID + ';', // 해당 uID가 맞으면  gameID, tierID 수정
+        (err, rows, fields) => { //여긴 몰라
+            if(rows != null){
+                res.send(rows);
+            } else{
+                res.send('NO');
+            }
+        }
+    )
+
+}
+//프로필 자기소개 변경
+
+exports.userInfo_change = (req, res) => {
+
+    let name = req.body.name;
+    connection.query(
+        'SELECT * FROM USER WHERE name = ' + name + ';',
+        (err, rows, fields) => {
+            if(rows != null){
+                res.send(rows);
+            } else{
+                res.send('NO');
+            }
+        }
+    )
+
+}
+
+//매너지수, 비매너지수
+
+exports.mannerInfo_change = (req, res) => {
+
+    let name = req.body.name;
+    connection.query(
+        'SELECT * FROM USER WHERE name = ' + name + ';',
+        (err, rows, fields) => {
+            if(rows != null){
+                res.send(rows);
+            } else{
+                res.send('NO');
+            }
+        }
+    )
+
+}
