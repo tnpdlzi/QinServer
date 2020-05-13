@@ -15,10 +15,11 @@ app.use(cors());
 /* use router class */
 const user = require('./routes/api/user/index'); // user 모듈을 가져다 쓰겠다. 이렇게 선언함으로써 user api가 동작하게 됨. 다른 모듈도 똑같이 여기서 이런식으로 선언해 줘야 함
 const friend = require('./routes/api/friend/index');
+const hash = require("./routes/api/hash/index"); //for hash req
 /* /users 요청을 모두 /user/index.js로 */
 app.use('/users', user); // api의 경로 설정해 준 것. 위에서 선언한 user를 어느 경로의 url로 요청했을 때 반응하게 해줄 것인가에 관한 것. /categori, /friends 이런식으로 우리가 쓰는 url 뒤에 /로 이어서 써주면 그 url을 통해 모듈로 요청이 가능하게 됨
 app.use('/friendList', friend);
-
+app.use("/hash", hash);
 app.listen(port, () => console.log(`Listening on port ${port}`)); // 서버 가동시켜줌
 
 module.exports = app;
