@@ -58,7 +58,7 @@ exports.roomlist = (req, res) => {
     // 리스트 받기 구현
 
     connection.query(
-        'SELECT roomID, ruID, roomIntro, total, endTime, createdTime FROM Room WHERE game = \'' + game + '\' AND tier = \'' + tier + '\' AND matched = 0 AND isDeleted = 0;',
+        'SELECT Room.roomID AS roomID, Room.ruID AS ruID, Room.roomIntro AS roomIntro, Room.total AS total, Room.endTime AS endTime, Room.createdTime AS createdTime, (SELECT COUNT(RoomMember.uID) FROM RoomMember WHERE RoomMember.roomID = Room.roomID) AS joined FROM Room INNER JOIN RoomMember ON RoomMember.roomID = Room.roomID WHERE Room.game = \'' + game + '\' AND Room.tier = \'' + tier + '\' AND Room.matched = 0 AND Room.isDeleted = 0 GROUP BY Room.roomID;',
         // 'SELECT roomID, ruID, roomIntro, total, endTime, createdTime FROM Room WHERE game = \'LOL\' AND tier = \'bronze\' AND matched = 0 AND isDeleted = 0;',
         (err, rows, fields) => {
             if(err){
