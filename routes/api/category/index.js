@@ -3,6 +3,7 @@ const controller = require('./category.controller') // user.controller에 있는
 
 
 router.get('/roomlist', controller.roomlist)
+router.get('/myroom', controller.myroom)
 
 
 module.exports = router; // 위의 애들 한번에 exports
