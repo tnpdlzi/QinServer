@@ -34,24 +34,26 @@ const getChatID = function(hashList, callback){
         console.log(chatIDarray);
         callback(chatIDarray);
     });
-   
 }
-//hashList를 모두 포함하는 채팅방들의 chatID 배열로 리턴
-exports.chatList = (req, res) =>{
+//hashList를 모두 포함하는 채팅방들의 chatID를 기반으로 ChatList 테이블과 HashTagUsed 테이블에서 정보를 추출한다.
+exports.hashSearch = (req, res) =>{
+    console.log("hashSearch CALL");
     let uID = req.body.uID; //user의 ID
     let hashList = req.body.hashList;
+    const sqlColum = "A.chatID, A.chatName, A.chatInfo, A.total, A.createdDate, A.isDeleted, A.onetoone, A.ruID";
     if(hashList.length > 0){
         //chatID들을 받아왔을때 채팅방에 대한 정보를 가져온다.
         getChatID(hashList, function(row){
             let chatIDarray = row;
-            let chatIDsql = "select * from ChatList where chatID IN (" + row + ");"; //SQL문
+            let chatIDsql = "SELECT " + sqlColum +", GROUP_CONCAT(B.hash ORDER BY B.hOrder) AS hash FROM ChatList A JOIN  HashTagUsed B ON A.chatID = B.chatID WHERE A.chatID IN(" + row + ") GROUP BY A.chatID, A.chatName;";
             connection.query(chatIDsql, function(err, row, fields){
-                res.json(row); //host에게 json
+                console.log(row);
+                res.send(row); //host에게 json
             });
         });
     }else {
         console.log("none");
-        res.send("none");
+        res.resd("none");
     } 
 }
 //채팅방 만들기 
@@ -82,4 +84,4 @@ exports.roomCreate = (req, res) =>{
         }
         else console.log(err);
     });
-} 
+}
