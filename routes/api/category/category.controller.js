@@ -96,13 +96,13 @@ exports.myroom = (req, res) => {
 
 exports.refresh = (req, res) => {
 
-    let rID = req.query.rID;
+    let roomID = req.query.roomID;
     let endTime = req.query.endTime;
 
     // 리스트 받기 구현
 
     connection.query(
-        'UPDATE Room SET createdTime = DATE_ADD(createdTime, INTERVAL ' + endTime + ' MINUTE) WHERE DATE_ADD(createdTime, INTERVAL ' + endTime + ' MINUTE) < DATE_ADD(NOW(), INTERVAL 1 HOUR) AND roomID = ' + rID + ';',
+        'UPDATE Room SET createdTime = DATE_ADD(createdTime, INTERVAL ' + endTime + ' MINUTE) WHERE DATE_ADD(createdTime, INTERVAL ' + endTime + ' MINUTE) < DATE_ADD(NOW(), INTERVAL 1 HOUR) AND roomID = ' + roomID + ';',
         (err, rows, fields) => {
             if(err){
                 console.log(err);
@@ -114,3 +114,41 @@ exports.refresh = (req, res) => {
     )
 }
 
+exports.member = (req, res) => {
+
+    let roomID = req.query.roomID;
+    let game = req.query.game;
+
+    // 리스트 받기 구현
+
+    connection.query(
+        'SELECT UserGame.gameID AS uID, inTime FROM RoomMember INNER JOIN UserGame ON RoomMember.uID = UserGame.uID AND UserGame.game = \'' + game + '\' WHERE RoomMember.roomID = \'' + roomID + '\';',
+        (err, rows, fields) => {
+            if(err){
+                console.log(err);
+            } else{
+                res.send(rows);
+                console.log(rows);
+            }
+        }
+    )
+}
+
+exports.title = (req, res) => {
+
+    let roomID = req.query.roomID;
+
+    connection.query(
+        'SELECT Room.roomIntro AS roomIntro, Room.total AS total, (SELECT COUNT(RoomMember.uID) FROM RoomMember WHERE RoomMember.roomID = Room.roomID) AS joined FROM Room WHERE Room.roomID = \'' + roomID + '\';',
+        (err, rows, fields) => {
+            if(err){
+                console.log(err);
+            } else{
+                res.send(rows);
+                console.log(rows);
+            }
+        }
+    )
+
+    // 리스트 받기 구현
+}

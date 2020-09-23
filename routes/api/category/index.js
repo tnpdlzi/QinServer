@@ -5,6 +5,8 @@ const controller = require('./category.controller') // user.controller에 있는
 router.get('/roomlist', controller.roomlist)
 router.get('/myroom', controller.myroom)
 router.get('/refresh', controller.refresh)
+router.get('/title', controller.title)
+router.get('/member', controller.member)
 
 
 module.exports = router; // 위의 애들 한번에 exports
