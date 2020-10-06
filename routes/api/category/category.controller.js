@@ -152,3 +152,25 @@ exports.title = (req, res) => {
 
     // 리스트 받기 구현
 }
+
+exports.join = (req, res) => {
+
+    let sql = 'INSERT INTO RoomMember VALUES (null, ?, ?, NOW(), 0)';
+
+    const roomID = req.body.roomID;
+    const uID = req.body.uID;
+
+    // params가 들어갔다. 얘네는 뭐냐면 위의 sql문에서 ?에 들어갈 애들이 된다.
+    let params = [roomID, uID];
+
+    console.log('param:' + params);
+
+    connection.query(sql, params, // params가 ?에 들어간 상태로 쿼리문이 실행되게 된다.
+
+        (err, rows, fields) => { // 리스폰스 해줄 애들.
+
+            res.send(rows); // response 해줬다. rows를
+
+        }
+    )
+}

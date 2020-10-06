@@ -7,6 +7,7 @@ router.get('/myroom', controller.myroom)
 router.get('/refresh', controller.refresh)
 router.get('/title', controller.title)
 router.get('/member', controller.member)
+router.post('/join', controller.join)
 
 
 module.exports = router; // 위의 애들 한번에 exports
