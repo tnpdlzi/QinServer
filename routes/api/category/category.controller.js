@@ -177,16 +177,17 @@ exports.join = (req, res) => {
 
 exports.makeRoom = (req, res) => {
 
-    let sql = 'INSERT INTO Room VALUES (null, ?, ?, NOW(), 0, 0, ?, ?, ?)';
+    let sql = 'INSERT INTO Room VALUES (null, ?, ?, ?, NOW(), 0, 0, ?, ?, ?)';
 
     const ruID = req.body.ruID;
     const tier = req.body.tier;
+    const game = req.body.game;
     const total = req.body.total;
     const endTime = req.body.endTime;
     const roomIntro = req.body.roomIntro;
 
     // params가 들어갔다. 얘네는 뭐냐면 위의 sql문에서 ?에 들어갈 애들이 된다.
-    let params = [ruID, tier, total, endTime, roomIntro];
+    let params = [ruID, tier, game, total, endTime, roomIntro];
 
     console.log('param:' + params);
 
