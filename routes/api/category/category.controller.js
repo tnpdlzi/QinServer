@@ -174,3 +174,28 @@ exports.join = (req, res) => {
         }
     )
 }
+
+exports.makeRoom = (req, res) => {
+
+    let sql = 'INSERT INTO Room VALUES (null, ?, ?, NOW(), 0, 0, ?, ?, ?)';
+
+    const ruID = req.body.ruID;
+    const tier = req.body.tier;
+    const total = req.body.total;
+    const endTime = req.body.endTime;
+    const roomIntro = req.body.roomIntro;
+
+    // params가 들어갔다. 얘네는 뭐냐면 위의 sql문에서 ?에 들어갈 애들이 된다.
+    let params = [ruID, tier, total, endTime, roomIntro];
+
+    console.log('param:' + params);
+
+    connection.query(sql, params, // params가 ?에 들어간 상태로 쿼리문이 실행되게 된다.
+
+        (err, rows, fields) => { // 리스폰스 해줄 애들.
+
+            res.send(rows); // response 해줬다. rows를
+
+        }
+    )
+}
