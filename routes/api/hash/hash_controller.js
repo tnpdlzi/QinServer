@@ -47,7 +47,13 @@ exports.hashSearch = (req, res) =>{
             let chatIDarray = row;
             let chatIDsql = "SELECT " + sqlColum +", GROUP_CONCAT(B.hash ORDER BY B.hOrder) AS hash FROM ChatList A JOIN  HashTagUsed B ON A.chatID = B.chatID WHERE A.chatID IN(" + row + ") GROUP BY A.chatID, A.chatName;";
             connection.query(chatIDsql, function(err, row, fields){
-                console.log(row);
+                if(row.length > 0){
+                    row.forEach(function(item, index){
+                        item.hash = item.hash.replace(/,/gi," #");
+                        console.log(item.hash);
+                    })
+                }
+                
                 res.send(row); //host에게 json
             });
         });
@@ -63,7 +69,7 @@ exports.roomCreate = (req, res) =>{
     let chatName = req.body.chatName;
     let chatInfo = req.body.chatInfo;
     let chatID;
-    let order = 1;
+    let order = 0;
     let strsql = "INSERT INTO ChatList (chatName, chatInfo, total, createdDate, isDeleted, onetoone, ruID) VALUES(\""+ chatName+"\",\""+chatInfo+"\", 1,now(),0,0,"+ruID+");";
     connection.query(strsql, function(err, row, fields){//채팅방 생성
         if(!err){
@@ -83,5 +89,39 @@ exports.roomCreate = (req, res) =>{
             });
         }
         else console.log(err);
+    });
+}
+exports.topRank = (req, res) =>{
+    console.log("topRank call");
+    connection.query("SELECT hash,count(*) as rank FROM HashTagUsed GROUP BY hash ORDER BY rank desc limit 10;", function(err, row, fields){
+        res.send(row);
+        console.log(row);
+    })
+}
+exports.chatRoomEnter = (req, res) =>{
+    console.log("chatRoomEnter Call");
+    let uID = req.body.uID;
+    let chatID = req.body.chatID;
+    const searchSQL = "SELECT * FROM ChatMember WHERE uID = " + uID +" AND chatID = " + chatID + ";"
+    const insertSQL = "INSERT INTO ChatMember VALUES(" +uID+"," +chatID+", 0);"
+    const updataSQL = "UPDATE ChatList SET total = total + 1 WHERE chatID = " + chatID +";"
+    connection.query(searchSQL, function(err, row, fields){
+        if(row.length == 0){
+            connection.query(insertSQL, function(err, row, fields){
+                console.log(updataSQL);
+                connection.query(updataSQL, function(err, row, fields){
+                    console.log(row);
+                    console.log("안쪽");
+                })
+            })
+            console.log("안들어감");
+        }else if(row.baned == 1){
+            console.log("baned")
+            res.send(null);
+        }else{
+            console.log("already join");
+            res.send(row);
+        }
+        console.log(row);
     });
 }
