@@ -59,7 +59,7 @@ exports.roomlist = (req, res) => {
 
     connection.query(
         //'SELECT Room.roomID AS roomID, Room.ruID AS ruID, Room.roomIntro AS roomIntro, Room.total AS total, Room.endTime AS endTime, Room.createdTime AS createdTime, (SELECT COUNT(RoomMember.uID) FROM RoomMember WHERE RoomMember.roomID = Room.roomID) AS joined FROM Room INNER JOIN RoomMember ON RoomMember.roomID = Room.roomID WHERE Room.game = \'' + game + '\' AND Room.tier = \'' + tier + '\' AND Room.matched = 0 AND Room.isDeleted = 0 GROUP BY Room.roomID;',
-        'SELECT User.userName, Room.roomID AS roomID, Room.ruID AS ruID, Room.roomIntro AS roomIntro, Room.total AS total, Room.endTime AS endTime, Room.createdTime AS createdTime, (SELECT COUNT(RoomMember.uID) FROM RoomMember WHERE RoomMember.roomID = Room.roomID) AS joined FROM Room INNER JOIN RoomMember ON RoomMember.roomID = Room.roomID INNER JOIN User ON User.uID = Room.ruID WHERE Room.game = \'' + game + '\' AND Room.tier = \'' + tier + '\' AND Room.matched = 0 AND Room.isDeleted = 0 GROUP BY Room.roomID;',
+        'SELECT User.userName, Room.roomID AS roomID, Room.tier AS tier, Room.ruID AS ruID, Room.roomIntro AS roomIntro, Room.total AS total, Room.endTime AS endTime, Room.createdTime AS createdTime, (SELECT COUNT(RoomMember.uID) FROM RoomMember WHERE RoomMember.roomID = Room.roomID) AS joined FROM Room INNER JOIN RoomMember ON RoomMember.roomID = Room.roomID INNER JOIN User ON User.uID = Room.ruID WHERE Room.game = \'' + game + '\' AND Room.tier = \'' + tier + '\' AND Room.matched = 0 AND Room.isDeleted = 0 GROUP BY Room.roomID;',
         (err, rows, fields) => {
             if(err){
                 console.log(err);
@@ -81,6 +81,28 @@ exports.myroom = (req, res) => {
 
     connection.query(
         'SELECT Room.roomID AS roomID, Room.ruID AS ruID, Room.roomIntro AS roomIntro, Room.total AS total, Room.endTime AS endTime, Room.createdTime AS createdTime, (SELECT COUNT(RoomMember.uID) FROM RoomMember WHERE RoomMember.roomID = Room.roomID) AS joined FROM Room INNER JOIN RoomMember ON RoomMember.roomID = Room.roomID WHERE Room.game = \'' + game + '\' AND Room.tier = \'' + tier + '\' AND Room.matched = 0 AND Room.isDeleted = 0 AND Room.ruID = \'' + uID + '\' GROUP BY Room.roomID;',
+        // 'SELECT roomID, ruID, roomIntro, total, endTime, createdTime FROM Room WHERE game = \'LOL\' AND tier = \'bronze\' AND matched = 0 AND isDeleted = 0;',
+        (err, rows, fields) => {
+            if(err){
+                console.log(err);
+            } else{
+                res.send(rows);
+                console.log(rows);
+            }
+        }
+    )
+}
+
+exports.newroom = (req, res) => {
+
+    let tier = req.query.tier;
+    let game = req.query.game;
+    let uID = req.query.uID;
+
+    // 리스트 받기 구현
+
+    connection.query(
+        'SELECT roomID FROM Room WHERE Room.game = \'' + game + '\' AND Room.tier = \'' + tier + '\' AND Room.matched = 0 AND Room.isDeleted = 0 AND Room.ruID = \'' + uID + '\';',
         // 'SELECT roomID, ruID, roomIntro, total, endTime, createdTime FROM Room WHERE game = \'LOL\' AND tier = \'bronze\' AND matched = 0 AND isDeleted = 0;',
         (err, rows, fields) => {
             if(err){
