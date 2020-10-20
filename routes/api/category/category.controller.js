@@ -144,7 +144,7 @@ exports.member = (req, res) => {
     // 리스트 받기 구현
 
     connection.query(
-        'SELECT UserGame.gameID AS gameID, RoomMember.uID AS uID, inTime, position FROM RoomMember INNER JOIN UserGame ON RoomMember.uID = UserGame.uID AND UserGame.game = \'' + game + '\' WHERE RoomMember.roomID = \'' + roomID + '\';',
+        'SELECT UserGame.gameID AS gameID, RoomMember.uID AS uID, inTime, position FROM RoomMember INNER JOIN UserGame ON RoomMember.uID = UserGame.uID AND UserGame.game = \'' + game + '\' WHERE RoomMember.roomID = \'' + roomID + '\' ORDER BY RoomMember.rInID;',
         (err, rows, fields) => {
             if(err){
                 console.log(err);
