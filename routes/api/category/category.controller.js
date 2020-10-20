@@ -59,7 +59,7 @@ exports.roomlist = (req, res) => {
 
     connection.query(
         //'SELECT Room.roomID AS roomID, Room.ruID AS ruID, Room.roomIntro AS roomIntro, Room.total AS total, Room.endTime AS endTime, Room.createdTime AS createdTime, (SELECT COUNT(RoomMember.uID) FROM RoomMember WHERE RoomMember.roomID = Room.roomID) AS joined FROM Room INNER JOIN RoomMember ON RoomMember.roomID = Room.roomID WHERE Room.game = \'' + game + '\' AND Room.tier = \'' + tier + '\' AND Room.matched = 0 AND Room.isDeleted = 0 GROUP BY Room.roomID;',
-        'SELECT User.userName, Room.roomID AS roomID, Room.tier AS tier, Room.ruID AS ruID, Room.roomIntro AS roomIntro, Room.total AS total, Room.endTime AS endTime, Room.createdTime AS createdTime, (SELECT COUNT(RoomMember.uID) FROM RoomMember WHERE RoomMember.roomID = Room.roomID) AS joined FROM Room INNER JOIN RoomMember ON RoomMember.roomID = Room.roomID INNER JOIN User ON User.uID = Room.ruID WHERE Room.game = \'' + game + '\' AND Room.tier = \'' + tier + '\' AND Room.matched = 0 AND Room.isDeleted = 0 GROUP BY Room.roomID;',
+        'SELECT User.userName, Room.ruID AS ruID, Room.roomID AS roomID, Room.tier AS tier, Room.ruID AS ruID, Room.roomIntro AS roomIntro, Room.total AS total, Room.endTime AS endTime, Room.createdTime AS createdTime, (SELECT COUNT(RoomMember.uID) FROM RoomMember WHERE RoomMember.roomID = Room.roomID) AS joined FROM Room INNER JOIN RoomMember ON RoomMember.roomID = Room.roomID INNER JOIN User ON User.uID = Room.ruID WHERE Room.game = \'' + game + '\' AND Room.tier = \'' + tier + '\' AND Room.matched = 0 AND Room.isDeleted = 0 GROUP BY Room.roomID;',
         (err, rows, fields) => {
             if(err){
                 console.log(err);
@@ -144,7 +144,7 @@ exports.member = (req, res) => {
     // 리스트 받기 구현
 
     connection.query(
-        'SELECT UserGame.gameID AS uID, inTime FROM RoomMember INNER JOIN UserGame ON RoomMember.uID = UserGame.uID AND UserGame.game = \'' + game + '\' WHERE RoomMember.roomID = \'' + roomID + '\';',
+        'SELECT UserGame.gameID AS gameID, RoomMember.uID AS uID, inTime, position FROM RoomMember INNER JOIN UserGame ON RoomMember.uID = UserGame.uID AND UserGame.game = \'' + game + '\' WHERE RoomMember.roomID = \'' + roomID + '\';',
         (err, rows, fields) => {
             if(err){
                 console.log(err);
@@ -177,13 +177,14 @@ exports.title = (req, res) => {
 
 exports.join = (req, res) => {
 
-    let sql = 'INSERT INTO RoomMember VALUES (null, ?, ?, NOW(), 0)';
+    let sql = 'INSERT INTO RoomMember VALUES (null, ?, ?, ?, NOW(), 0)';
 
     const roomID = req.body.roomID;
     const uID = req.body.uID;
+    const position = req.body.position;
 
     // params가 들어갔다. 얘네는 뭐냐면 위의 sql문에서 ?에 들어갈 애들이 된다.
-    let params = [roomID, uID];
+    let params = [roomID, uID, position];
 
     console.log('param:' + params);
 
