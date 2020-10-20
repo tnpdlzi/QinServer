@@ -156,6 +156,26 @@ exports.member = (req, res) => {
     )
 }
 
+exports.ismember = (req, res) => {
+
+    let roomID = req.query.roomID;
+    let uID = req.query.uID;
+
+    // 리스트 받기 구현
+
+    connection.query(
+        'SELECT uID FROM RoomMember WHERE roomID = \'' + roomID + '\' AND uID = \'' + uID + '\';',
+        (err, rows, fields) => {
+            if(err){
+                console.log(err);
+            } else{
+                res.send(rows);
+                console.log(rows);
+            }
+        }
+    )
+}
+
 exports.title = (req, res) => {
 
     let roomID = req.query.roomID;
