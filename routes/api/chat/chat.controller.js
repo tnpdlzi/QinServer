@@ -66,7 +66,7 @@ io.on('connection', (socket) => {
     //보낸 메시지 받아서 DB로 저장
     socket.on('send Message', (msg, chatName) => {
         var date = new Date().toISOString().slice(0, 19).replace('T', ' ');
-        let getMessageSql = "INSERT INTO Message(chatID, uID, mID, sendTime, message) VALUES((SELECT chatID from ChatList where chatName ='" + chatName + "'), 1, 1, '" + date + "','" + msg +"')";
+        let getMessageSql = "INSERT INTO Message(chatID, uID, sendTime, message) VALUES((SELECT chatID from ChatList where chatName ='" + chatName + "'), 1, '" + date + "','" + msg +"')";
         connection.query(getMessageSql, function (err, results, fields) {
             //console.log(results);
         });
