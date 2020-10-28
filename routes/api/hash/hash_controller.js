@@ -1,3 +1,4 @@
+const e = require("express");
 const fs = require("fs");
 const data = fs.readFileSync("./database.json");
 const conf = JSON.parse(data);
@@ -40,7 +41,7 @@ exports.hashSearch = (req, res) =>{
     console.log("hashSearch CALL");
     let uID = req.body.uID; //user의 ID
     let hashList = req.body.hashList;
-    const sqlColum = "A.chatID, A.chatName, A.chatInfo, A.total, A.createdDate, A.isDeleted, A.onetoone, A.ruID";
+    const sqlColum = "A.chatID, A.chatName, A.chatInfo, A.total, A.createdDate, A.isDeleted, A.onetoone, A.ruID, A.maxNum";
     if(hashList.length > 0){
         //chatID들을 받아왔을때 채팅방에 대한 정보를 가져온다.
         getChatID(hashList, function(row){
@@ -68,9 +69,10 @@ exports.roomCreate = (req, res) =>{
     let hashList = req.body.hashList; //입력한 hashTag들 담는다.
     let chatName = req.body.chatName;
     let chatInfo = req.body.chatInfo;
+    let maxNum = req.body.maxNum;
     let chatID;
     let order = 0;
-    let strsql = "INSERT INTO ChatList (chatName, chatInfo, total, createdDate, isDeleted, onetoone, ruID) VALUES(\""+ chatName+"\",\""+chatInfo+"\", 1,now(),0,0,"+ruID+");";
+    let strsql = "INSERT INTO ChatList (chatName, chatInfo, total, createdDate, isDeleted, onetoone, ruID, maxNum) VALUES(\""+ chatName+"\",\""+chatInfo+"\", 1,now(),0,0,"+ruID+"," + maxNum +");";
     connection.query(strsql, function(err, row, fields){//채팅방 생성
         if(!err){
             chatID = row.insertId; //생성한 chatRoom의 chatID를 받아온다.
@@ -84,7 +86,10 @@ exports.roomCreate = (req, res) =>{
                     else console.log(err);
                 });
             });
-            connection.query("INSERT INTO ChatMember VALUES("+ruID+","+chatID+", 0);", function(err, row, fields){//채팅 멤버 추가
+            connection.query("INSERT INTO ChatMember VALUES("+ruID+", 0,"+ chatID+");", function(err, row, fields){//채팅 멤버 추가
+                if(!err){
+                    res.send("success");
+                }
                 console.log("add chat members");
             });
         }
@@ -102,26 +107,38 @@ exports.chatRoomEnter = (req, res) =>{
     console.log("chatRoomEnter Call");
     let uID = req.body.uID;
     let chatID = req.body.chatID;
+    const maxCheckSQL = "SELECT total,maxNum FROM ChatList WHERE chatID = " + chatID + ";"
     const searchSQL = "SELECT * FROM ChatMember WHERE uID = " + uID +" AND chatID = " + chatID + ";"
-    const insertSQL = "INSERT INTO ChatMember VALUES(" +uID+"," +chatID+", 0);"
+    const insertSQL = "INSERT INTO ChatMember VALUES(" +uID+",0," +chatID+ ");"
+    
     const updataSQL = "UPDATE ChatList SET total = total + 1 WHERE chatID = " + chatID +";"
-    connection.query(searchSQL, function(err, row, fields){
-        if(row.length == 0){
-            connection.query(insertSQL, function(err, row, fields){
-                console.log(updataSQL);
-                connection.query(updataSQL, function(err, row, fields){
-                    console.log(row);
-                    console.log("안쪽");
-                })
-            })
-            console.log("안들어감");
-        }else if(row.baned == 1){
-            console.log("baned")
-            res.send(null);
-        }else{
-            console.log("already join");
-            res.send(row);
+
+    connection.query(searchSQL, function(err, row, fileds){
+        console.log("chatRoomEnter : 이미 가입됬는지 확인");
+        if(!err){
+            if(row.length == 0){
+                connection.query(maxCheckSQL,function(err, row, fields){
+                    if(!err){
+                        if(row[0].total + 1 <= row[0].maxNum){
+                            connection.query(insertSQL,function(err,row,fields){
+                                if(!err){
+                                    connection.query(updataSQL,function(err, row, fields){
+                                        if(!err){
+                                            res.send("success");
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    }
+                });
+            }else{
+                if(row[0].baned == 1){
+                    res.send("baned");
+                }else{
+                    res.send("already join");
+                }
+            }
         }
-        console.log(row);
     });
 }
