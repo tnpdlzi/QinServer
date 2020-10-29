@@ -11,6 +11,7 @@ router.post('/join', controller.join)
 router.post('/makeRoom', controller.makeRoom)
 router.get('/newroom', controller.newroom)
 router.get('/ismember', controller.ismember)
+router.get('/gameID', controller.gameID)
 
 
 module.exports = router; // 위의 애들 한번에 exports

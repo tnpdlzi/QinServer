@@ -243,3 +243,23 @@ exports.makeRoom = (req, res) => {
         }
     )
 }
+
+exports.gameID = (req, res) => {
+
+    let uID = req.query.uID;
+    let game = req.query.game;
+
+    connection.query(
+        'SELECT gameID FROM UserGame WHERE uID = \'' + uID + '\' AND game = \'' + game + '\';',
+        (err, rows, fields) => {
+            if(err){
+                console.log(err);
+            } else{
+                res.send(rows);
+                console.log(rows);
+            }
+        }
+    )
+
+    // 리스트 받기 구현
+}
