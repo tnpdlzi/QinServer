@@ -19,11 +19,10 @@ const connection = mysql.createConnection({
 
     connection.connect();
 
-exports.frinedList = (req, res) => {
+exports.friendList = (req, res) => {
     let userID = req.query.uID;
 
-    connection.query('SELECT Us.uID, Us.image, Us.userName, Us.intro FROM Friend AS Fr'
-    +'INNER JOIN User AS Us ON Fr.uID2 = Us.uID WHERE Fr.uID1 = ' + userID + ';', function(error, results, fields) {
+    connection.query('SELECT Us.uID AS uid, Us.image AS image, Us.userName AS name, Us.intro AS comment FROM Friend AS Fr INNER JOIN User AS Us ON Fr.uID2 = Us.uID WHERE Fr.uID1 = ' + userID + ';', function(error, results, fields) {
         res.send(results);
         console.log(results);
         console.log(fields);
@@ -31,8 +30,13 @@ exports.frinedList = (req, res) => {
 } 
 
 exports.friendProfile = (req, res) => {
-    let FriendID = req.body.uID;
+    let FriendID = req.query.uID;
 
-    connection.query('SELECT image, userName, good, bad, intro')  
+    connection.query('SELECT User.good, User.bad, UserGame.game, UserGame.tierID, UserGame.gameID FROM UserGame INNER JOIN User ON User.uID = UserGame.uID WHERE UserGame.uID = \'' + FriendID + '\';', function (error, results, fields) {
+    // connection.query('SELECT tierID, gameID FROM UserGame WHERE uID = \'' + FriendID + '\';', function (error, results, fields) {
+        
+        res.send(results);
+        console.log(results);
+        console.log(fields);
+    })  
 }
-
