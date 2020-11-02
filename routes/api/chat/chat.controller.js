@@ -33,6 +33,7 @@ exports.loadChatList = (req, res) => {      //미완성 부분 (아직 안씀)
 
 io.on('connection', (socket) => {
 
+
     //메시지 주고받기
     socket.on('chat message', (msg) => {
         //io.emit('submit', msg);
@@ -45,11 +46,19 @@ io.on('connection', (socket) => {
     })
     
     //DB에서 채팅방 리스트 불러오기
-    socket.on('load chatList', () => {
-        let chatListSql = "SELECT chatName FROM ChatList";
+    socket.on('load chatList', (uID) => {
+        console.log("채팅방 불러오기");
+        //MySQL ONLY_FULL_GROUP_BY 오류 발생하므로 MYsql mode set 설정해줌
+        let chatListSql = "SELECT A.chatID, A.chatName,B.message, date_format(MAX(sendTime),'%T') AS sendTime FROM ChatList AS A JOIN Message AS B ON B.chatID = A.chatID WHERE A.chatID IN(SELECT chatID FROM ChatMember WHERE uID =" + uID.uID + ") GROUP BY B.chatID;";
+        console.log(chatListSql);
         connection.query(chatListSql, function (err, results, fields) {
-            //console.log(results);
-            socket.emit('return chatList', results);
+            if(!err){
+                console.log(results);
+                socket.emit('return chatList', results);
+            }else{
+                console.log(err);
+            }
+            
         });
     })
 
