@@ -263,3 +263,22 @@ exports.gameID = (req, res) => {
 
     // 리스트 받기 구현
 }
+
+exports.matched = (req, res) => {
+
+    let roomID = req.query.roomID;
+
+    // 리스트 받기 구현
+
+    connection.query(
+        'UPDATE Room SET matched = 1, isDeleted = 1 WHERE roomID = \'' + roomID + '\';',
+        (err, rows, fields) => {
+            if(err){
+                console.log(err);
+            } else{
+                res.send(rows);
+                console.log(rows);
+            }
+        }
+    )
+}

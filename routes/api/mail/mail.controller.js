@@ -41,12 +41,12 @@ exports.evalMail = (req, res) => {
                 let sql = 'INSERT INTO Request VALUES (null, ?, ?, ?, NOW(), 0)';
 
                 // params가 들어갔다. 얘네는 뭐냐면 위의 sql문에서 ?에 들어갈 애들이 된다.
-                let params = [uID1, JSON.stringify(results[i].uID, game)];
+                let params = [uID1, JSON.stringify(results[i].uID), game];
 
                 console.log('param:' + params);
                 
                 connection.query(sql, params, function(err, result) {
-                        if(error) {
+                        if(err) {
                             console.log(result);
                         }
                         res.send(result);
