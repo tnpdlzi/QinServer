@@ -66,13 +66,66 @@ exports.getMails = (req, res) => {
     // 리스트 받기 구현
 
     connection.query(
-        'SELECT Request.uID1, UserGame.gameID, Request.createdTime, User.userName, User.image FROM Request INNER JOIN UserGame ON UserGame.game = Request.kind AND UserGame.uID = Request.uID1 INNER JOIN User ON User.uID = Request.uID1 WHERE Request.uID2 = \'' + uID2 + '\' ;',
+        'SELECT Request.fgID, Request.uID1, UserGame.gameID, UserGame.game, UserGame.tierID, Request.createdTime, User.userName, User.image, User.intro, User.good, User.bad FROM Request INNER JOIN UserGame ON UserGame.game = Request.kind AND UserGame.uID = Request.uID1 INNER JOIN User ON User.uID = Request.uID1 WHERE Request.isDeleted = 0 AND Request.uID2 = \'' + uID2 + '\' ;',
         (err, rows, fields) => {
             if(err){
                 console.log(err);
             } else{
                 res.send(rows);
-                console.log(rows);
+            }
+        }
+    )
+}
+
+exports.good = (req, res) => {
+
+    let uID = req.query.uID;
+
+    // 리스트 받기 구현
+
+    connection.query(
+        'UPDATE User SET good = good + 1 WHERE uID = \'' + uID + '\';',
+        (err, rows, fields) => {
+            if(err){
+                console.log(err);
+            } else{
+                res.send(rows);
+            }
+        }
+    )
+}
+
+exports.bad = (req, res) => {
+
+    let uID = req.query.uID;
+
+    // 리스트 받기 구현
+
+    connection.query(
+        'UPDATE User SET bad = bad + 1 WHERE uID = \'' + uID + '\';',
+        (err, rows, fields) => {
+            if(err){
+                console.log(err);
+            } else{
+                res.send(rows);
+            }
+        }
+    )
+}
+
+exports.deleteMail = (req, res) => {
+
+    let fgID = req.query.fgID;
+
+    // 리스트 받기 구현
+
+    connection.query(
+        'UPDATE Request SET isDeleted = 1 WHERE fgID = \'' + fgID + '\';',
+        (err, rows, fields) => {
+            if(err){
+                console.log(err);
+            } else{
+                res.send(rows);
             }
         }
     )
