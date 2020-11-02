@@ -66,7 +66,7 @@ exports.getMails = (req, res) => {
     // 리스트 받기 구현
 
     connection.query(
-        'SELECT Request.uID1, UserGame.gameID, Request.createdDate FROM Request INNER JOIN UserGame ON UserGame.game = Request.kind AND UserGame.uID = Request.uID1 WHERE Request.uID2 = \'' + uID2 + '\' ;',
+        'SELECT Request.uID1, UserGame.gameID, Request.createdTime, User.userName, User.image FROM Request INNER JOIN UserGame ON UserGame.game = Request.kind AND UserGame.uID = Request.uID1 INNER JOIN User ON User.uID = Request.uID1 WHERE Request.uID2 = \'' + uID2 + '\' ;',
         (err, rows, fields) => {
             if(err){
                 console.log(err);
