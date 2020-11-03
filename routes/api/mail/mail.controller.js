@@ -16,7 +16,9 @@ const connection = mysql.createConnection({ // mysql과 연결해주는 컨넥�
 
     port: conf.port,
 
-    database: conf.database
+    database: conf.database,
+
+    multipleStatements: true
 
 });
 
@@ -25,8 +27,6 @@ connection.connect(); // 생성한 컨넥션을 연결
 exports.evalMail = (req, res) => {
 
     let roomID = req.query.roomID;
-    let uID1 = req.query.uID;
-    let game = req.query.game;
 
     // 리스트 받기 구현
 
@@ -35,28 +35,43 @@ exports.evalMail = (req, res) => {
         (err, results, fields) => {
             if(err){
                 console.log(err);
-            } 
-
-            for(let i = 0; i < results.length; i++){
-                let sql = 'INSERT INTO Request VALUES (null, ?, ?, ?, NOW(), 0)';
-
-                // params가 들어갔다. 얘네는 뭐냐면 위의 sql문에서 ?에 들어갈 애들이 된다.
-                let params = [uID1, JSON.stringify(results[i].uID), game];
-
-                console.log('param:' + params);
-                
-                connection.query(sql, params, function(err, result) {
-                        if(err) {
-                            console.log(result);
-                        }
-                        res.send(result);
-                        console.log(result);
-    
-                    }
-                );
+            } else{
+                res.send(results);
+                console.log(results);
             }
         }
     )
+}
+
+exports.sendMails = (req, res) => {
+
+    let results = req.body.uID;
+    let game = req.body.game;
+    let arr = [];
+
+    for(let i = 0; i < results.length; i++){
+        for(let j = 0; j < results.length; j++){
+            if(i != j){
+                let params = [results[j].uID, results[i].uID, game];
+                arr.push(params);
+            }                    
+        }
+    }   
+
+    let sql = 'INSERT INTO Request VALUES (NULL, ?, ?, ?, NOW(), 0);';
+    let sqls = '';
+    arr.forEach(function(item){
+        sqls += mysql.format(sql, item);
+    });
+    console.log('sqls = ' + sqls);
+
+    connection.query(sqls, function(err, result) {
+        if(err) {
+            console.log('ERR : ' + err);
+        }
+        res.send(result);
+        console.log(result);
+    });
 }
 
 exports.getMails = (req, res) => {
