@@ -211,7 +211,26 @@ exports.member = (req, res) => {
     // 리스트 받기 구현
 
     connection.query(
-        'SELECT UserGame.gameID AS gameID, RoomMember.uID AS uID, inTime, position FROM RoomMember INNER JOIN UserGame ON RoomMember.uID = UserGame.uID AND UserGame.game = \'' + game + '\' WHERE RoomMember.roomID = \'' + roomID + '\' ORDER BY RoomMember.rInID;',
+        'SELECT User.userName, User.intro, User.good, User.bad, UserGame.gameID AS gameID, RoomMember.uID AS uID, inTime, position FROM RoomMember INNER JOIN UserGame ON RoomMember.uID = UserGame.uID AND UserGame.game = \'' + game + '\' INNER JOIN User ON RoomMember.uID = User.uID WHERE RoomMember.roomID = \'' + roomID + '\' ORDER BY RoomMember.rInID;',
+        (err, rows, fields) => {
+            if(err){
+                console.log(err);
+            } else{
+                res.send(rows);
+                console.log(rows);
+            }
+        }
+    )
+}
+
+exports.mGames = (req, res) => {
+
+    let uID = req.query.uID;
+
+    // 리스트 받기 구현
+
+    connection.query(
+        'SELECT game, gameID, tierID FROM UserGame WHERE uID = \'' + uID + '\';',
         (err, rows, fields) => {
             if(err){
                 console.log(err);
