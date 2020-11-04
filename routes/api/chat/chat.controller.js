@@ -12,7 +12,8 @@ const connection = mysql.createPool({
     user: conf.user,
     password: conf.password,
     port: conf.port,
-    database: conf.database
+    database: conf.database,
+    dateStrings : true
 
     // host: 'localhost',
     // user: 'root',
@@ -35,7 +36,7 @@ io.on('connection', (socket) => {
 
     //메시지 주고받기
     socket.on('chat message', (msg) => {
-        //io.emit('submit', msg);
+        io.emit('chat message', msg);
         console.log('message send : ' + msg);
     })
 
@@ -55,7 +56,7 @@ io.on('connection', (socket) => {
 
     //DB에서 채팅방별 메시지 모두 불러오기
     socket.on('load Message', (chatName) => {
-        let messageListSql = "SELECT mID, message FROM Message where chatID = (SELECT chatID from ChatList where chatName ='" + chatName + "')";
+        let messageListSql = "SELECT Message.sendTime, Message.message, User.userName, User.uID FROM User, Message where (Message.uID = User.uID AND chatID = (SELECT chatID from ChatList where chatName ='" + chatName + "')) ORDER BY Message.sendTime";
         connection.query(messageListSql, function (err, results, fields) {
             //console.log(results);
             if(results.length > 0)
@@ -65,17 +66,22 @@ io.on('connection', (socket) => {
 
     //보낸 메시지 받아서 DB로 저장
     socket.on('send Message', (msg, chatName) => {
-        //var date = new Date().toISOString().slice(0, 19).replace('T', ' ');
-        var date = new Date();
-        var date = date.getUTCFullYear() + '-' +
-            ('00' + (date.getUTCMonth() + 1)).slice(-2) + '-' +
-            ('00' + date.getUTCDate()).slice(-2) + ' ' +
-            ('00' + date.getHours()).slice(-2) + ':' +
-            ('00' + date.getUTCMinutes()).slice(-2) + ':' +
-            ('00' + date.getUTCSeconds()).slice(-2);
-        let getMessageSql = "INSERT INTO Message(chatID, uID, sendTime, message) VALUES((SELECT chatID from ChatList where chatName ='" + chatName + "'), 1, '" + date + "','" + msg + "')";
+        //console.log(msg);
+        io.emit('send Message', msg);
+        let getMessageSql = "INSERT INTO Message(chatID, uID, sendTime, message) VALUES((SELECT chatID from ChatList where chatName ='" + chatName + "'), '"+ msg.uID +"','"+ msg.sendTime +"','" + msg.message + "')";
         connection.query(getMessageSql, function (err, results, fields) {
             //console.log(results);
+        });
+        
+    })
+
+    //채팅방 멤버 불러오기
+    socket.on('load Member', (chatName) => {
+        let getMemberSql = "SELECT ChatMember.uID, User.userName FROM User, ChatMember where ChatMember.uID = User.uID AND chatID = (SELECT chatID from ChatList where chatName ='" + chatName + "')";
+        connection.query(getMemberSql, (err, results, fields) => {
+            //console.log(results);
+            if(results.length > 0)
+                socket.emit('return Member', results);
         });
     })
 })
