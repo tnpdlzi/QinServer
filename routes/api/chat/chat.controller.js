@@ -50,6 +50,7 @@ io.on('connection', (socket) => {
     socket.on('load chatList', (uID) => {
         console.log("채팅방 불러오기");
         //MySQL ONLY_FULL_GROUP_BY 오류 발생하므로 MYsql mode set 설정해줌
+        //SQL이 각 그룹별 최대값을 받아오지 못한다.
         let chatListSql = "SELECT A.chatID, A.chatName,B.message, date_format(MAX(sendTime),'%T') AS sendTime FROM ChatList AS A JOIN Message AS B ON B.chatID = A.chatID WHERE A.chatID IN(SELECT chatID FROM ChatMember WHERE uID =" + uID.uID + ") GROUP BY B.chatID;";
         console.log(chatListSql);
         connection.query(chatListSql, function (err, results, fields) {
