@@ -16,7 +16,9 @@ const connection = mysql.createConnection({ // mysql과 연결해주는 컨넥�
 
     port: conf.port,
 
-    database: conf.database
+    database: conf.database,
+
+    multipleStatements: true
 
 });
 
@@ -25,8 +27,6 @@ connection.connect(); // 생성한 컨넥션을 연결
 exports.evalMail = (req, res) => {
 
     let roomID = req.query.roomID;
-    let uID1 = req.query.uID;
-    let game = req.query.game;
 
     // 리스트 받기 구현
 
@@ -35,28 +35,43 @@ exports.evalMail = (req, res) => {
         (err, results, fields) => {
             if(err){
                 console.log(err);
-            } 
-
-            for(let i = 0; i < results.length; i++){
-                let sql = 'INSERT INTO Request VALUES (null, ?, ?, ?, NOW(), 0)';
-
-                // params가 들어갔다. 얘네는 뭐냐면 위의 sql문에서 ?에 들어갈 애들이 된다.
-                let params = [uID1, JSON.stringify(results[i].uID, game)];
-
-                console.log('param:' + params);
-                
-                connection.query(sql, params, function(err, result) {
-                        if(error) {
-                            console.log(result);
-                        }
-                        res.send(result);
-                        console.log(result);
-    
-                    }
-                );
+            } else{
+                res.send(results);
+                console.log(results);
             }
         }
     )
+}
+
+exports.sendMails = (req, res) => {
+
+    let results = req.body.uID;
+    let game = req.body.game;
+    let arr = [];
+
+    for(let i = 0; i < results.length; i++){
+        for(let j = 0; j < results.length; j++){
+            if(i != j){
+                let params = [results[j].uID, results[i].uID, game];
+                arr.push(params);
+            }                    
+        }
+    }   
+
+    let sql = 'INSERT INTO Request VALUES (NULL, ?, ?, ?, NOW(), 0);';
+    let sqls = '';
+    arr.forEach(function(item){
+        sqls += mysql.format(sql, item);
+    });
+    console.log('sqls = ' + sqls);
+
+    connection.query(sqls, function(err, result) {
+        if(err) {
+            console.log('ERR : ' + err);
+        }
+        res.send(result);
+        console.log(result);
+    });
 }
 
 exports.getMails = (req, res) => {
@@ -66,13 +81,66 @@ exports.getMails = (req, res) => {
     // 리스트 받기 구현
 
     connection.query(
-        'SELECT Request.uID1, UserGame.gameID, Request.createdTime, User.userName, User.image FROM Request INNER JOIN UserGame ON UserGame.game = Request.kind AND UserGame.uID = Request.uID1 INNER JOIN User ON User.uID = Request.uID1 WHERE Request.uID2 = \'' + uID2 + '\' ;',
+        'SELECT Request.fgID, Request.uID1, UserGame.gameID, UserGame.game, UserGame.tierID, Request.createdTime, User.userName, User.image, User.intro, User.good, User.bad FROM Request INNER JOIN UserGame ON UserGame.game = Request.kind AND UserGame.uID = Request.uID1 INNER JOIN User ON User.uID = Request.uID1 WHERE Request.isDeleted = 0 AND Request.uID2 = \'' + uID2 + '\' ;',
         (err, rows, fields) => {
             if(err){
                 console.log(err);
             } else{
                 res.send(rows);
-                console.log(rows);
+            }
+        }
+    )
+}
+
+exports.good = (req, res) => {
+
+    let uID = req.query.uID;
+
+    // 리스트 받기 구현
+
+    connection.query(
+        'UPDATE User SET good = good + 1 WHERE uID = \'' + uID + '\';',
+        (err, rows, fields) => {
+            if(err){
+                console.log(err);
+            } else{
+                res.send(rows);
+            }
+        }
+    )
+}
+
+exports.bad = (req, res) => {
+
+    let uID = req.query.uID;
+
+    // 리스트 받기 구현
+
+    connection.query(
+        'UPDATE User SET bad = bad + 1 WHERE uID = \'' + uID + '\';',
+        (err, rows, fields) => {
+            if(err){
+                console.log(err);
+            } else{
+                res.send(rows);
+            }
+        }
+    )
+}
+
+exports.deleteMail = (req, res) => {
+
+    let fgID = req.query.fgID;
+
+    // 리스트 받기 구현
+
+    connection.query(
+        'UPDATE Request SET isDeleted = 1 WHERE fgID = \'' + fgID + '\';',
+        (err, rows, fields) => {
+            if(err){
+                console.log(err);
+            } else{
+                res.send(rows);
             }
         }
     )

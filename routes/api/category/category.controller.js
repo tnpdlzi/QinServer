@@ -16,13 +16,15 @@ const connection = mysql.createConnection({ // mysql과 연결해주는 컨넥�
 
     port: conf.port,
 
-    database: conf.database
+    database: conf.database,
+
+    multipleStatements: true
 
 });
 
 connection.connect(); // 생성한 컨넥션을 연결
 
-exports.roomlist = (req, res) => {
+exports.getRooms = (req, res) => {
 
     let tier = req.query.tier;
     let game = req.query.game;
@@ -32,33 +34,50 @@ exports.roomlist = (req, res) => {
     connection.query('SELECT roomID, endTime FROM Room WHERE game = \'' + game + '\' AND tier = \'' + tier + '\' AND isDeleted = 0 AND matched = 0;', function(error, results, fields) {
 
         if(error) {
-            console.log(error);
+            console.log(results);
         }
-
+        res.send(results);
         console.log(results);
 
+    });
+}
 
-        for(let i = 0; i < results.length; i++){
-            let sql = 'UPDATE Room SET isDeleted = 1 WHERE roomID = ' + JSON.stringify(results[i].roomID) + ' AND DATE_ADD(createdTime, INTERVAL ' + JSON.stringify(results[i].endTime) + ' MINUTE) < NOW()' + ';'
-            // console.log(JSON.stringify(results[i].proID));
+exports.updateRooms = (req, res) => {
 
-            connection.query(sql, function(err, result) {
-                    if(error) {
-                        console.log(result);
-                    }
-                    res.send(result);
-                    console.log(result);
+    let results = req.body.results;
+    let arr = [];
+    // 삭제 구현
 
-                }
-            );
-        }
+    for(let j = 0; j < results.length; j++){
+            let params = [results[j].roomID, results[j].endTime];
+            arr.push(params);
+    }
 
-    })
+    for(let i = 0; i < results.length; i++){
+        let sql = 'UPDATE Room SET isDeleted = 1 WHERE roomID = ? AND DATE_ADD(createdTime, INTERVAL ? MINUTE) < NOW()' + ';'
+        let sqls = '';
+        arr.forEach(function(item){
+            sqls += mysql.format(sql, item);
+        });
+        console.log('sqls = ' + sqls);
+
+        connection.query(sqls, function(err, result) {
+            if(err) {
+                console.log('ERR : ' + err);
+            }
+            res.send(result);
+            console.log(result);
+        });
+    }
+}
+exports.roomList = (req, res) => {
+
+    let tier = req.query.tier;
+    let game = req.query.game;
 
     // 리스트 받기 구현
 
     connection.query(
-        //'SELECT Room.roomID AS roomID, Room.ruID AS ruID, Room.roomIntro AS roomIntro, Room.total AS total, Room.endTime AS endTime, Room.createdTime AS createdTime, (SELECT COUNT(RoomMember.uID) FROM RoomMember WHERE RoomMember.roomID = Room.roomID) AS joined FROM Room INNER JOIN RoomMember ON RoomMember.roomID = Room.roomID WHERE Room.game = \'' + game + '\' AND Room.tier = \'' + tier + '\' AND Room.matched = 0 AND Room.isDeleted = 0 GROUP BY Room.roomID;',
         'SELECT User.userName, Room.ruID AS ruID, Room.roomID AS roomID, Room.tier AS tier, Room.ruID AS ruID, Room.roomIntro AS roomIntro, Room.total AS total, Room.endTime AS endTime, Room.createdTime AS createdTime, (SELECT COUNT(RoomMember.uID) FROM RoomMember WHERE RoomMember.roomID = Room.roomID) AS joined FROM Room INNER JOIN RoomMember ON RoomMember.roomID = Room.roomID INNER JOIN User ON User.uID = Room.ruID WHERE Room.game = \'' + game + '\' AND Room.tier = \'' + tier + '\' AND Room.matched = 0 AND Room.isDeleted = 0 GROUP BY Room.roomID;',
         (err, rows, fields) => {
             if(err){
@@ -70,6 +89,54 @@ exports.roomlist = (req, res) => {
         }
     )
 }
+// exports.roomlist = (req, res) => {
+
+//     let tier = req.query.tier;
+//     let game = req.query.game;
+
+//     // 삭제 구현
+
+//     connection.query('SELECT roomID, endTime FROM Room WHERE game = \'' + game + '\' AND tier = \'' + tier + '\' AND isDeleted = 0 AND matched = 0;', function(error, results, fields) {
+
+//         if(error) {
+//             console.log(error);
+//         }
+
+//         console.log(results);
+
+
+//         for(let i = 0; i < results.length; i++){
+//             let sql = 'UPDATE Room SET isDeleted = 1 WHERE roomID = ' + JSON.stringify(results[i].roomID) + ' AND DATE_ADD(createdTime, INTERVAL ' + JSON.stringify(results[i].endTime) + ' MINUTE) < NOW()' + ';'
+//             // console.log(JSON.stringify(results[i].proID));
+
+//             connection.query(sql, function(err, result) {
+//                     if(error) {
+//                         console.log(result);
+//                     }
+//                     res.send(result);
+//                     console.log(result);
+
+//                 }
+//             );
+//         }
+
+//     })
+
+//     // 리스트 받기 구현
+
+//     connection.query(
+//         //'SELECT Room.roomID AS roomID, Room.ruID AS ruID, Room.roomIntro AS roomIntro, Room.total AS total, Room.endTime AS endTime, Room.createdTime AS createdTime, (SELECT COUNT(RoomMember.uID) FROM RoomMember WHERE RoomMember.roomID = Room.roomID) AS joined FROM Room INNER JOIN RoomMember ON RoomMember.roomID = Room.roomID WHERE Room.game = \'' + game + '\' AND Room.tier = \'' + tier + '\' AND Room.matched = 0 AND Room.isDeleted = 0 GROUP BY Room.roomID;',
+//         'SELECT User.userName, Room.ruID AS ruID, Room.roomID AS roomID, Room.tier AS tier, Room.ruID AS ruID, Room.roomIntro AS roomIntro, Room.total AS total, Room.endTime AS endTime, Room.createdTime AS createdTime, (SELECT COUNT(RoomMember.uID) FROM RoomMember WHERE RoomMember.roomID = Room.roomID) AS joined FROM Room INNER JOIN RoomMember ON RoomMember.roomID = Room.roomID INNER JOIN User ON User.uID = Room.ruID WHERE Room.game = \'' + game + '\' AND Room.tier = \'' + tier + '\' AND Room.matched = 0 AND Room.isDeleted = 0 GROUP BY Room.roomID;',
+//         (err, rows, fields) => {
+//             if(err){
+//                 console.log(err);
+//             } else{
+//                 res.send(rows);
+//                 console.log(rows);
+//             }
+//         }
+//     )
+// }
 
 exports.myroom = (req, res) => {
 
@@ -262,4 +329,23 @@ exports.gameID = (req, res) => {
     )
 
     // 리스트 받기 구현
+}
+
+exports.matched = (req, res) => {
+
+    let roomID = req.query.roomID;
+
+    // 리스트 받기 구현
+
+    connection.query(
+        'UPDATE Room SET matched = 1, isDeleted = 1 WHERE roomID = \'' + roomID + '\';',
+        (err, rows, fields) => {
+            if(err){
+                console.log(err);
+            } else{
+                res.send(rows);
+                console.log(rows);
+            }
+        }
+    )
 }
