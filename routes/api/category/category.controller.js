@@ -211,7 +211,7 @@ exports.member = (req, res) => {
     // 리스트 받기 구현
 
     connection.query(
-        'SELECT User.userName, User.intro, User.good, User.bad, UserGame.gameID AS gameID, RoomMember.uID AS uID, inTime, position FROM RoomMember INNER JOIN UserGame ON RoomMember.uID = UserGame.uID AND UserGame.game = \'' + game + '\' INNER JOIN User ON RoomMember.uID = User.uID WHERE RoomMember.roomID = \'' + roomID + '\' ORDER BY RoomMember.rInID;',
+        'SELECT User.userName, User.intro, User.good, User.bad, UserGame.gameID AS gameID, RoomMember.uID AS uID, inTime, position FROM RoomMember INNER JOIN UserGame ON RoomMember.uID = UserGame.uID AND UserGame.game = \'' + game + '\' INNER JOIN User ON RoomMember.uID = User.uID WHERE RoomMember.roomID = \'' + roomID + '\' AND RoomMember.baned = 0 ORDER BY RoomMember.rInID;',
         (err, rows, fields) => {
             if(err){
                 console.log(err);
@@ -358,6 +358,49 @@ exports.matched = (req, res) => {
 
     connection.query(
         'UPDATE Room SET matched = 1, isDeleted = 1 WHERE roomID = \'' + roomID + '\';',
+        (err, rows, fields) => {
+            if(err){
+                console.log(err);
+            } else{
+                res.send(rows);
+                console.log(rows);
+            }
+        }
+    )
+}
+
+
+exports.friend = (req, res) => {
+
+    let sql = 'INSERT INTO Friend VALUES (?, ?, \'f\')';
+
+    const uID1 = req.body.uID1;
+    const uID2 = req.body.uID2
+
+    // params가 들어갔다. 얘네는 뭐냐면 위의 sql문에서 ?에 들어갈 애들이 된다.
+    let params = [uID1, uID2];
+
+    console.log('param:' + params);
+
+    connection.query(sql, params, // params가 ?에 들어간 상태로 쿼리문이 실행되게 된다.
+
+        (err, rows, fields) => { // 리스폰스 해줄 애들.
+
+            res.send(rows); // response 해줬다. rows를
+
+        }
+    )
+}
+
+exports.ban = (req, res) => {
+
+    let roomID = req.query.roomID;
+    let uID = req.query.uID;
+
+    // 리스트 받기 구현
+
+    connection.query(
+        'UPDATE RoomMember SET baned = 1 WHERE roomID = \'' + roomID + '\' AND uID = \'' + uID + '\';',
         (err, rows, fields) => {
             if(err){
                 console.log(err);
