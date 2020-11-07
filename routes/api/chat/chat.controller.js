@@ -26,12 +26,7 @@ exports.loadChatList = (req, res) => {      //미완성 부분 (아직 안씀)
 }
 
 io.on('connection', (socket) => {
-
-    //메시지 주고받기
-    // socket.on('chat message', (msg) => {
-    //     io.emit('chat message', msg);
-    //     console.log('message send : ' + msg);
-    // })
+    console.log('user connected');
 
     //연결 종료
     socket.on('disconnect', () => {
@@ -40,13 +35,12 @@ io.on('connection', (socket) => {
     
     //DB에서 채팅방 리스트 불러오기
     socket.on('load chatList', (uID) => {
-        // 최근 메시지는 11/7 수정 예정
-        // let chatListSql = "SELECT TT1.chatID, TT1.chatName, TT1.sendTime, TT1.message FROM" + 
-        // "(SELECT Tl.chatID, Tl.chatName, Tm.sendTime, Tm.message FROM (SELECT tl.chatID, tl.chatName FROM ChatList AS tl WHERE chatID IN"+ 
-        // "(SELECT chatID FROM ChatMember WHERE uID = 2)) AS Tl, Message AS Tm WHERE Tm.chatID = Tl.chatID) AS TT1, (SELECT TT.chatID, MAX(TT.SendTime) AS max_time FROM " +
-        // "(SELECT Tl.chatID, Tl.chatName, Tm.sendTime, Tm.message FROM (SELECT tl.chatID, tl.chatName FROM ChatList AS tl WHERE chatID IN (SELECT chatID FROM ChatMember WHERE uID = " + uID.uID + ")) AS Tl,"+
-        // " Message AS Tm WHERE Tm.chatID = Tl.chatID) AS TT GROUP BY chatID) AS TT2 WHERE TT1.sendTime = TT2.max_time AND TT1.chatID = TT2.chatID;"
-        let chatListSql = "SELECT ChatList.chatID, chatName FROM ChatList, ChatMember where (ChatMember.uID = " + uID + " AND ChatMember.chatID = ChatList.chatID)";
+        let chatListSql = "SELECT TT1.chatID, TT1.chatName, TT1.sendTime, TT1.message FROM" + 
+        "(SELECT Tl.chatID, Tl.chatName, Tm.sendTime, Tm.message FROM (SELECT tl.chatID, tl.chatName FROM ChatList AS tl WHERE chatID IN"+ 
+        "(SELECT chatID FROM ChatMember WHERE uID = 1)) AS Tl, Message AS Tm WHERE Tm.chatID = Tl.chatID) AS TT1, (SELECT TT.chatID, MAX(TT.SendTime) AS max_time FROM " +
+        "(SELECT Tl.chatID, Tl.chatName, Tm.sendTime, Tm.message FROM (SELECT tl.chatID, tl.chatName FROM ChatList AS tl WHERE chatID IN (SELECT chatID FROM ChatMember WHERE uID = " + uID + ")) AS Tl,"+
+        " Message AS Tm WHERE Tm.chatID = Tl.chatID) AS TT GROUP BY chatID) AS TT2 WHERE TT1.sendTime = TT2.max_time AND TT1.chatID = TT2.chatID;"
+        //let chatListSql = "SELECT ChatList.chatID, chatName FROM ChatList, ChatMember where (ChatMember.uID = " + uID + " AND ChatMember.chatID = ChatList.chatID)";
         connection.query(chatListSql, function (err, results, fields) {
             if(!err){
                 //console.log(results);
@@ -69,10 +63,10 @@ io.on('connection', (socket) => {
     });
 
     //보낸 메시지 받아서 DB로 저장
-    socket.on('send Message', (msg, chatID) => {
+    socket.on('send Message', (msg) => {
         //console.log(msg);
         io.emit('send Message', msg);
-        let getMessageSql = "INSERT INTO Message(chatID, uID, sendTime, message) VALUES(" + chatID + ", '"+ msg.uID +"','"+ msg.sendTime +"','" + msg.message + "')";
+        let getMessageSql = "INSERT INTO Message(chatID, uID, sendTime, message) VALUES(" + msg.chatID + ", '"+ msg.uID +"','"+ msg.sendTime +"','" + msg.message + "')";
         connection.query(getMessageSql, function (err, results, fields) {
             //console.log(results);
         });
