@@ -35,10 +35,10 @@ io.on('connection', (socket) => {
     
     //DB에서 채팅방 리스트 불러오기
     socket.on('load chatList', (uID) => {
-        let chatListSql = "SELECT TT1.chatID, TT1.chatName, TT1.sendTime, TT1.message FROM" + 
-        "(SELECT Tl.chatID, Tl.chatName, Tm.sendTime, Tm.message FROM (SELECT tl.chatID, tl.chatName FROM ChatList AS tl WHERE chatID IN"+ 
+        let chatListSql = "SELECT * FROM" + 
+        "(SELECT Tl.*, Tm.sendTime, Tm.message FROM (SELECT * FROM ChatList AS tl WHERE chatID IN"+ 
         "(SELECT chatID FROM ChatMember WHERE uID = 1)) AS Tl, Message AS Tm WHERE Tm.chatID = Tl.chatID) AS TT1, (SELECT TT.chatID, MAX(TT.SendTime) AS max_time FROM " +
-        "(SELECT Tl.chatID, Tl.chatName, Tm.sendTime, Tm.message FROM (SELECT tl.chatID, tl.chatName FROM ChatList AS tl WHERE chatID IN (SELECT chatID FROM ChatMember WHERE uID = " + uID + ")) AS Tl,"+
+        "(SELECT Tl.chatID, Tl.chatName, Tm.sendTime, Tm.message FROM (SELECT * FROM ChatList AS tl WHERE chatID IN (SELECT chatID FROM ChatMember WHERE uID = " + uID + ")) AS Tl,"+
         " Message AS Tm WHERE Tm.chatID = Tl.chatID) AS TT GROUP BY chatID) AS TT2 WHERE TT1.sendTime = TT2.max_time AND TT1.chatID = TT2.chatID;"
         //let chatListSql = "SELECT ChatList.chatID, chatName FROM ChatList, ChatMember where (ChatMember.uID = " + uID + " AND ChatMember.chatID = ChatList.chatID)";
         console.log(chatListSql);
