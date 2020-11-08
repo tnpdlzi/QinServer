@@ -101,8 +101,15 @@ exports.roomCreate = (req, res) =>{
             });
             //방장을 추가한다.
             connection.query("INSERT INTO ChatMember VALUES("+ruID+", 0,"+ chatID+");", function(err, row, fields){//채팅 멤버 추가
+                const messageSQL = "INSERT INTO Message (chatID, uID, sendTime, message) VALUES(" + chatID +"," +ruID + ",now(), \"환영합니다.\");";
+                console.log(messageSQL);
                 if(!err){
-                    res.send("success");
+                    connection.query(messageSQL, function(err, row, fields){
+                        console.log(row);
+                        res.send("success");
+                    })
+                        
+                    
                 }
                 console.log("add chat members");
             });

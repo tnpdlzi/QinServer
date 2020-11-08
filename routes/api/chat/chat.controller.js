@@ -41,9 +41,10 @@ io.on('connection', (socket) => {
         "(SELECT Tl.chatID, Tl.chatName, Tm.sendTime, Tm.message FROM (SELECT tl.chatID, tl.chatName FROM ChatList AS tl WHERE chatID IN (SELECT chatID FROM ChatMember WHERE uID = " + uID + ")) AS Tl,"+
         " Message AS Tm WHERE Tm.chatID = Tl.chatID) AS TT GROUP BY chatID) AS TT2 WHERE TT1.sendTime = TT2.max_time AND TT1.chatID = TT2.chatID;"
         //let chatListSql = "SELECT ChatList.chatID, chatName FROM ChatList, ChatMember where (ChatMember.uID = " + uID + " AND ChatMember.chatID = ChatList.chatID)";
+        console.log(chatListSql);
         connection.query(chatListSql, function (err, results, fields) {
             if(!err){
-                //console.log(results);
+                console.log(results);
                 socket.emit('return chatList', results);
             }else{
                 console.log(err);
