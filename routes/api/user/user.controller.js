@@ -83,15 +83,17 @@ exports.search = (req, res) => { // search라는 이름의 모듈을 export한�
     )
 }
 // 위와 동일
-exports.get = (req, res) => {
+exports.getMyDatas = (req, res) => {
 
-    let id = req.query.uID; // 여기서는 body에 있는 것이 아닌 쿼리, 즉 uID 값에 배정된 값을 받아오겠다는 query가 쓰인다. 이는 get 방식으로 주었기 때문인데, url에 ?uID=1 이런식으로 와서 body에는 아무것도 없기 때문에 body.uID 백날 해봤자 아무것도 안나온다. 얘는 get 방식임에 유의.
+    let userID = req.query.uID; // 여기서는 body에 있는 것이 아닌 쿼리, 즉 uID 값에 배정된 값을 받아오겠다는 query가 쓰인다. 이는 get 방식으로 주었기 때문인데, url에 ?uID=1 이런식으로 와서 body에는 아무것도 없기 때문에 body.uID 백날 해봤자 아무것도 안나온다. 얘는 get 방식임에 유의.
+    console.log(userID)
+    
     connection.query(
-        'SELECT uID FROM User WHERE uID = ' + id + ';',
+        'SELECT uID, image, userName, userID, good, bad, intro FROM User WHERE userID = \'' + userID + '\';',
         (err, rows, fields) => {
 
             res.send(rows);
-            console.log(rows); // console.log는 printf랑 비슷한 것이다. 테스트를 위해 콘솔에 찍어 본 것.
+            console.log('getMyDatas send 로그 : ' + rows); // console.log는 printf랑 비슷한 것이다. 테스트를 위해 콘솔에 찍어 본 것.
 
         }
     )
@@ -276,15 +278,19 @@ exports.register = (req, res) => {
 
 
 exports.login = (req,res,next) => {
-    let userID = req.body.userID;
-    let inputPassword = req.body.password;
-    let dbPassword, salt, userName, loginBy;
+    let userID = req.query.userID;
+    let inputPassword = req.query.password;
+    let dbPassword, salt, userName, loginBy, good, bad, intro, uID;
 
-    connection.query('SELECT userPW, loginBy, salt, image, intro FROM User WHERE userID = \'' + userID + '\';', function(error, results, fields) { // 여기선 es6 방식을 쓰지 않았다. 위의 = (err, rows, fields) => 이거랑 똑같은 거다.
+    connection.query('SELECT uID, userPW, loginBy, salt, intro, good, bad, userID, userName FROM User WHERE userID = \'' + userID + '\';', function(error, results, fields) { // 여기선 es6 방식을 쓰지 않았다. 위의 = (err, rows, fields) => 이거랑 똑같은 거다.
 
         if (error) {
-            console.log(error);
+            console.log('다음은 에러메시지이다 : ' + error);
         }
+        // console.log('로그인 시간 : ' + date.toDateString)
+        console.log('이것은 유저의 아이디이다 = ' + userID)
+        console.log('이것은 유저가 입력한 패스워드이다 = ' + inputPassword)
+        console.log('유저패스워드는 다음과 같다 = ' + JSON.stringify(results))
 
         dbPassword = JSON.stringify(results[0].userPW); // results(rows)에서 userPW 값을 받아와 dbPassword라는 변수에 저장해주었다.
 
@@ -295,28 +301,33 @@ exports.login = (req,res,next) => {
         salt = s; // 따옴표 없앤걸 다시 저장
 
         userName = JSON.stringify(results[0].userName); // 같은 과정
+        console.log('유저네임은다음과같다 : ' + userName)
         // var c = centerKey.replace('\"', "");
         // var d = c.replace('\"', "");
         //
         // centerKey = d;
 
         loginBy = JSON.stringify(results[0].loginBy); // loginBy 받아와 저장
+        good = JSON.stringify(results[0].good); // loginBy 받아와 저장
+        bad = JSON.stringify(results[0].bad); // loginBy 받아와 저장
+        intro = JSON.stringify(results[0].intro); // loginBy 받아와 저장
+        uID = JSON.stringify(results[0].uID); // loginBy 받아와 저장
 
         let hashPassword = crypto.createHash("sha512").update(inputPassword + salt).digest("hex"); // 암호화를 통한 동일 여부 검사
 
         if (dbPassword === '\"' + hashPassword + '\"') { // 디비에 들어가있는 패스워드와 방금 입력받아 암호화 다시 돌린게 같은지 검사
-            //    console.log("비밀번호 일치");
+               console.log("비밀번호 일치");
             //  console.log(hashPassword + 'ha성공');
             //  console.log(dbPassword + 'db성공');
             //  console.log(salt + '솔트');
-            //
-            // console.log('auth2=' + auth);
+            
+            let sendData = {uID: uID, userName: userName, userID: userID, loginBy: loginBy, good: good, bad: bad, intro: intro}; // 같다면 userName, userID, loginBy를 다시 클라이언트로 반환
 
-            let sendData = {userName, userID, loginBy, image, intro}; // 같다면 userName, userID, loginBy를 다시 클라이언트로 반환
+            console.log(sendData)
 
             res.send(sendData); // sendData 값 response
         } else {
-            //   console.log("비밀번호 불일치");
+              console.log("비밀번호 불일치");
             // console.log(hashPassword + 'ha실패');
             // console.log(dbPassword + 'db실패');
             //   console.log(salt + '솔트');
