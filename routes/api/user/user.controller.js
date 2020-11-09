@@ -280,7 +280,7 @@ exports.login = (req,res,next) => {
     let inputPassword = req.body.password;
     let dbPassword, salt, userName, loginBy;
 
-    connection.query('SELECT userPW, loginBy, salt FROM User WHERE userID = \'' + userID + '\';', function(error, results, fields) { // 여기선 es6 방식을 쓰지 않았다. 위의 = (err, rows, fields) => 이거랑 똑같은 거다.
+    connection.query('SELECT userPW, loginBy, salt, image, intro FROM User WHERE userID = \'' + userID + '\';', function(error, results, fields) { // 여기선 es6 방식을 쓰지 않았다. 위의 = (err, rows, fields) => 이거랑 똑같은 거다.
 
         if (error) {
             console.log(error);
@@ -294,7 +294,7 @@ exports.login = (req,res,next) => {
 
         salt = s; // 따옴표 없앤걸 다시 저장
 
-        userName = JSON.stringify(results[0].username); // 같은 과정
+        userName = JSON.stringify(results[0].userName); // 같은 과정
         // var c = centerKey.replace('\"', "");
         // var d = c.replace('\"', "");
         //
@@ -312,7 +312,7 @@ exports.login = (req,res,next) => {
             //
             // console.log('auth2=' + auth);
 
-            let sendData = {userName, userID, loginBy}; // 같다면 userName, userID, loginBy를 다시 클라이언트로 반환
+            let sendData = {userName, userID, loginBy, image, intro}; // 같다면 userName, userID, loginBy를 다시 클라이언트로 반환
 
             res.send(sendData); // sendData 값 response
         } else {

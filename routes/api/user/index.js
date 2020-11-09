@@ -3,9 +3,9 @@ const controller = require('./user.controller') // user.controller에 있는 exp
 
 
 router.post('/search', controller.search) // 컨트롤러에서 search로 exports된 애들을 /search url로 배정 방식은 post
-router.get('/get', controller.get) // get이라는 모듈을 get방식으로 url 배정
+router.get('/getMyDatas', controller.getMyDatas) // get이라는 모듈을 get방식으로 url 배정
 router.post('/register', controller.register) // 동일
-router.post('/login', controller.login)
+router.get('/login', controller.login)
 router.post('/gameInfo_change', controller.gameInfo_change)
 router.post('/searchName', controller.searchName)
 router.post('/searchID', controller.searchID)
