@@ -372,7 +372,7 @@ exports.matched = (req, res) => {
 
 exports.friend = (req, res) => {
 
-    let sql = 'INSERT INTO Friend VALUES (?, ?, \'f\')';
+    let sql = 'INSERT INTO Friend VALUES (?, ?, f)';
 
     const uID1 = req.body.uID1;
     const uID2 = req.body.uID2
