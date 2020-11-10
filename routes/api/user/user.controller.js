@@ -87,7 +87,7 @@ exports.getMyDatas = (req, res) => {
 
     let userID = req.query.uID; // 여기서는 body에 있는 것이 아닌 쿼리, 즉 uID 값에 배정된 값을 받아오겠다는 query가 쓰인다. 이는 get 방식으로 주었기 때문인데, url에 ?uID=1 이런식으로 와서 body에는 아무것도 없기 때문에 body.uID 백날 해봤자 아무것도 안나온다. 얘는 get 방식임에 유의.
     console.log(userID)
-    
+
     connection.query(
         'SELECT uID, image, userName, userID, good, bad, intro FROM User WHERE userID = \'' + userID + '\';',
         (err, rows, fields) => {
@@ -220,18 +220,20 @@ exports.passID = (req, res) => { // search라는 이름의 모듈을 export한�
     )
 }
 exports.updatePW = (req, res) => {
-    let userPW = req.body.userPW;
+    const inputPassword = req.body.userpassword;
     let userName = req.body.userName;
     const salt = Math.round((new Date().valueOf() * Math.random())) + "";
-    const hashPassword = crypto.createHash("sha512").update(userPW + salt).digest("hex");
+    const hashPassword = crypto.createHash("sha512").update(inputPassword + salt).digest("hex");
 
-    connection.query( // 생성한 컨넥션에서 쿼리문을 쓰겠다. 즉, 디비에 쿼리문 쓰겠다.
-        'UPDATE User SET userPW = '+ JSON.stringify(hashPassword) + 'WHERE userName =' + JSON.stringify(userName) +';', // User 테이블에서 uID가 방금 저장한 id인 것의 모든 것을 select하겠다. 얘가 첫 번째 매개변수가 된다. 즉 sql query문이 첫번째 매개변수다.
-        (err, rows, fields) => { // 에러, 열, 필드를 매개변수로 갖는다. params가 없어서 이게 두 번째 매개변수다. cb가 뭐 약잔지는 나도 모르겠다. 아마도 response를 뜻하는듯. 여기서 매개변수 자체가 하나의 함수다. 이는 자바스크립트의 특성인데, 매개변수로 함수를 가질 수 있다. 이것 역시 람다함수다.
-            if(rows != ""){ // rows는 배열, fields는 컬럼을 의미한다. err는 에러 떴을 때 에러 내용 출력해줄거다. 아마도.
+    connection.query(
+        'UPDATE User SET userPW = '+ JSON.stringify(hashPassword) + ', salt = ' + JSON.stringify(salt) + 'WHERE userName =' + JSON.stringify(userName) +';',
+        (err, rows, fields) => {
+            if(rows != ""){
+                console.log(JSON.stringify(salt));
                 console.log(rows);
-                res.send(rows); // select한 값이 있으면 리턴. 근데 else문도 똑같아서 별로 의미 있지는 않다. 그냥 테스트용 코드. res는 리스폰스로 다시 클라이언트에게 반환해 준다. 여기서 send 함수가 쓰인 것. rows는 select 된 애들이 들어간다.
+                res.send(rows);
             } else{
+                console.log(JSON.stringify(salt));
                 console.log(rows);
                 res.send(false);
             }
@@ -320,7 +322,7 @@ exports.login = (req,res,next) => {
             //  console.log(hashPassword + 'ha성공');
             //  console.log(dbPassword + 'db성공');
             //  console.log(salt + '솔트');
-            
+
             let sendData = {uID: uID, userName: userName, userID: userID, loginBy: loginBy, good: good, bad: bad, intro: intro}; // 같다면 userName, userID, loginBy를 다시 클라이언트로 반환
 
             console.log(sendData)
