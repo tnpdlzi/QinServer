@@ -290,9 +290,9 @@ exports.login = (req,res,next) => {
             console.log('다음은 에러메시지이다 : ' + error);
         }
         // console.log('로그인 시간 : ' + date.toDateString)
-        console.log('이것은 유저의 아이디이다 = ' + userID)
-        console.log('이것은 유저가 입력한 패스워드이다 = ' + inputPassword)
-        console.log('유저패스워드는 다음과 같다 = ' + JSON.stringify(results))
+        // console.log('이것은 유저의 아이디이다 = ' + userID)
+        // console.log('이것은 유저가 입력한 패스워드이다 = ' + inputPassword)
+        // console.log('유저패스워드는 다음과 같다 = ' + JSON.stringify(results))
 
         dbPassword = JSON.stringify(results[0].userPW); // results(rows)에서 userPW 값을 받아와 dbPassword라는 변수에 저장해주었다.
 
@@ -325,7 +325,7 @@ exports.login = (req,res,next) => {
 
             let sendData = {uID: uID, userName: userName, userID: userID, loginBy: loginBy, good: good, bad: bad, intro: intro}; // 같다면 userName, userID, loginBy를 다시 클라이언트로 반환
 
-            console.log(sendData)
+            // console.log(sendData)
 
             res.send(sendData); // sendData 값 response
         } else {
