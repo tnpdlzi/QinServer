@@ -87,7 +87,7 @@ exports.getMyDatas = (req, res) => {
 
     let userID = req.query.uID; // 여기서는 body에 있는 것이 아닌 쿼리, 즉 uID 값에 배정된 값을 받아오겠다는 query가 쓰인다. 이는 get 방식으로 주었기 때문인데, url에 ?uID=1 이런식으로 와서 body에는 아무것도 없기 때문에 body.uID 백날 해봤자 아무것도 안나온다. 얘는 get 방식임에 유의.
     console.log(userID)
-    
+
     connection.query(
         'SELECT uID, image, userName, userID, good, bad, intro FROM User WHERE userID = \'' + userID + '\';',
         (err, rows, fields) => {
@@ -220,18 +220,20 @@ exports.passID = (req, res) => { // search라는 이름의 모듈을 export한�
     )
 }
 exports.updatePW = (req, res) => {
-    const inputPassword = req.body.userPW;
+    const inputPassword = req.body.userpassword;
     let userName = req.body.userName;
     const salt = Math.round((new Date().valueOf() * Math.random())) + "";
     const hashPassword = crypto.createHash("sha512").update(inputPassword + salt).digest("hex");
 
     connection.query(
-        'UPDATE User SET userPW = '+ JSON.stringify(hashPassword) + 'WHERE userName =' + JSON.stringify(userName) +';',
+        'UPDATE User SET userPW = '+ JSON.stringify(hashPassword) + ', salt = ' + JSON.stringify(salt) + 'WHERE userName =' + JSON.stringify(userName) +';',
         (err, rows, fields) => {
             if(rows != ""){
+                console.log(JSON.stringify(salt));
                 console.log(rows);
                 res.send(rows);
             } else{
+                console.log(JSON.stringify(salt));
                 console.log(rows);
                 res.send(false);
             }
@@ -320,7 +322,7 @@ exports.login = (req,res,next) => {
             //  console.log(hashPassword + 'ha성공');
             //  console.log(dbPassword + 'db성공');
             //  console.log(salt + '솔트');
-            
+
             let sendData = {uID: uID, userName: userName, userID: userID, loginBy: loginBy, good: good, bad: bad, intro: intro}; // 같다면 userName, userID, loginBy를 다시 클라이언트로 반환
 
             console.log(sendData)
