@@ -78,7 +78,7 @@ io.on('connection', (socket) => {
 
     //채팅방 멤버 불러오기
     socket.on('load Member', (chatID) => {
-        let getMemberSql = "SELECT ChatMember.uID, User.userName FROM User, ChatMember where ChatMember.uID = User.uID AND chatID = " + chatID + " AND baned = 0";
+        let getMemberSql = "SELECT ChatMember.uID, User.userName FROM User, ChatMember where ChatMember.uID = User.uID AND chatID = " + chatID + " AND baned = 0 ORDER BY User.userName";
         connection.query(getMemberSql, (err, results, fields) => {
             //console.log(results);
             if(results.length > 0)
@@ -98,9 +98,16 @@ io.on('connection', (socket) => {
 
     //방 나가기
     socket.on('exit Room', (chatID, uID) => {
-        let exitRoomSql = "DELETE FROM ChatMember where chatID = '" + chatID + "' AND uID = '" + uID + "'";
+        console.log(chatID, uID);
+        let exitRoomSql = "DELETE FROM ChatMember where chatID = " + chatID + " AND uID = " + uID
         connection.query(exitRoomSql, (err, results, fields) => {
-
+            if(!err){
+                //채팅방 인원수 감소
+                connection.query("UPDATE ChatList SET total = total - 1 where chatID = " + chatID , (err, results, fields) => {
+                }
+            )}
+            else
+                console.log(err);
         });
     });
 
