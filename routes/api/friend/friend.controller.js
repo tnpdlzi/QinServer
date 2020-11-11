@@ -23,7 +23,24 @@ exports.myProfile = (req, res) => {
     let userID = req.query.uID;
 
     connection.query(
-        'SELECT uID, image, userName, intro FROM User WHERE uID = ' + userID + ';',
+        'SELECT uID, image, userName, intro, good, bad, userID FROM User WHERE uID = ' + userID + ';',
+        function (error, results, fields) {
+            if (error) {
+                console.log(error);
+            }
+            console.log(results);
+            console.log(fields);
+            res.send(results);
+
+        }
+    )
+}
+
+exports.friendProfile = (req, res) => {
+    let userID = req.query.uID;
+
+    connection.query(
+        'SELECT Us.uID, Us.image, Us.userName, Us.intro, Us.good, Us.bad FROM Friend AS Fr INNER JOIN User AS Us ON Fr.uID2 = Us.uID WHERE Fr.uID1 = ' + userID + ';',
         function (error, results, fields) {
             if (error) {
                 console.log(error);
@@ -36,33 +53,75 @@ exports.myProfile = (req, res) => {
     )
 } 
 
-
-exports.friendList = (req, res) => {
+exports.profileGame = (req, res) => {
     let userID = req.query.uID;
 
     connection.query(
-        'SELECT Us.uID AS uid, Us.image AS image, Us.userName AS name, Us.intro AS comment FROM Friend AS Fr INNER JOIN User AS Us ON Fr.uID2 = Us.uID WHERE Fr.uID1 = ' + userID + ';', 
-        function(error, results, fields) {
-            if(error){
+        'SELECT usergameID, game, gameID, tierID FROM UserGame WHERE uID=' + userID + ';',
+        function (error, results, fields) {
+            if (error) {
                 console.log(error);
             }
             console.log(results);
             console.log(fields);
             res.send(results);
+
+        }
+    )
+}
+
+exports.profileGenre = (req, res) => {
+    let userID = req.query.uID;
+
+    connection.query(
+        'SELECT gLikeID, genre, gDegree FROM GenreLike WHERE uID=' + userID + ';',
+        function (error, results, fields) {
+            if (error) {
+                console.log(error);
+            }
+            console.log(results);
+            console.log(fields);
+            res.send(results);
+
+        }
+    )
+}
+
+exports.insertProfileGame = (req, res) => {
+    let sql = 'INSERT INTO UserGame VALUES (null, ?, ?, ?, ?, NOW(), 0)';
+
+    const uID = req.body.uID;
+    const game = req.body.game;
+    const tierID = req.body.tierID;
+    const gameID = req.body.gameID;
+
+    let params = [uID, game, tierID, gameID];
+
+    connection.query(sql, params, 
+
+        (err, rows, fields) => { 
+
+            res.send(rows); 
             
         }
     )
-} 
+}
 
-exports.friendProfile = (req, res) => {
-    let FriendID = req.query.uID;
+exports.insertProfileGenre = (req, res) => {
+    let sql = 'INSERT INTO UserGame VALUES (null, ?, ?, ?, NOW(), 0)';
 
-    connection.query(
-        'SELECT User.good, User.bad, UserGame.game, UserGame.tierID, UserGame.gameID FROM UserGame INNER JOIN User ON User.uID = UserGame.uID WHERE UserGame.uID = \'' + FriendID + '\';', 
-        function (error, results, fields) {
-            res.send(results);
-            console.log(results);
-            console.log(fields);
+    const uID = req.body.uID;
+    const genre = req.body.genre;
+    const gDegree = req.body.gDegree;
+
+    let params = [uID, genre, gDegree];
+
+    connection.query(sql, params,
+
+        (err, rows, fields) => {
+
+            res.send(rows);
+
         }
-    )  
+    )
 }
