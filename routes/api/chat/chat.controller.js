@@ -41,7 +41,7 @@ io.on('connection', (socket) => {
         ") AS TT1, " +
         "(SELECT TT.chatID, MAX(TT.SendTime) AS max_time FROM (SELECT Tl.chatID, Tl.chatName, Tm.sendTime, Tm.message FROM (SELECT * FROM ChatList AS tl WHERE chatID IN (SELECT chatID FROM ChatMember WHERE uID = " + uID + " && baned = 0)) AS Tl, Message AS Tm WHERE Tm.chatID = Tl.chatID) AS TT GROUP BY chatID" +
         ") AS TT2" +
-        "WHERE TT1.sendTime = TT2.max_time AND TT1.chatID = TT2.chatID";
+        " WHERE TT1.sendTime = TT2.max_time AND TT1.chatID = TT2.chatID";
         //let chatListSql = "SELECT ChatList.chatID, chatName FROM ChatList, ChatMember where (ChatMember.uID = " + uID + " AND ChatMember.chatID = ChatList.chatID)";
         console.log(chatListSql);
         connection.query(chatListSql, function (err, results, fields) {
