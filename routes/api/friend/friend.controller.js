@@ -28,8 +28,6 @@ exports.myProfile = (req, res) => {
             if (error) {
                 console.log(error);
             }
-            console.log(results);
-            console.log(fields);
             res.send(results);
 
         }
@@ -45,8 +43,6 @@ exports.friendProfile = (req, res) => {
             if (error) {
                 console.log(error);
             }
-            console.log(results);
-            console.log(fields);
             res.send(results);
 
         }
@@ -62,8 +58,6 @@ exports.profileGame = (req, res) => {
             if (error) {
                 console.log(error);
             }
-            console.log(results);
-            console.log(fields);
             res.send(results);
 
         }
@@ -79,8 +73,6 @@ exports.profileGenre = (req, res) => {
             if (error) {
                 console.log(error);
             }
-            console.log(results);
-            console.log(fields);
             res.send(results);
 
         }
@@ -94,13 +86,12 @@ exports.insertProfileGame = (req, res) => {
     const game = req.body.game;
     const tierID = req.body.tierID;
     const gameID = req.body.gameID;
-
+    
     let params = [uID, game, tierID, gameID];
 
     connection.query(sql, params, 
-
+        
         (err, rows, fields) => { 
-
             res.send(rows); 
             
         }
@@ -130,13 +121,11 @@ exports.tierData = (req, res) => {
     let game = req.query.game;
 
     connection.query(
-        'SELECT tier FROM Tier WHERE game=' + game + ';',
+        'SELECT tier FROM Tier WHERE game = \'' + game + '\';',
         function (error, results, fields) {
             if (error) {
                 console.log(error);
             }
-            console.log(results);
-            console.log(fields);
             res.send(results);
 
         }
