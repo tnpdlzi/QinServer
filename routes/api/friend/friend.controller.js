@@ -125,3 +125,20 @@ exports.insertProfileGenre = (req, res) => {
         }
     )
 }
+
+exports.tierData = (req, res) => {
+    let game = req.query.game;
+
+    connection.query(
+        'SELECT tier FROM Tier WHERE game=' + game + ';',
+        function (error, results, fields) {
+            if (error) {
+                console.log(error);
+            }
+            console.log(results);
+            console.log(fields);
+            res.send(results);
+
+        }
+    )
+}

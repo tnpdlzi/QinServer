@@ -10,4 +10,6 @@ router.get('/profileGenre', controller.profileGenre)
 router.post('/insertProfileGame', controller.insertProfileGame)
 router.post('/insertProfileGenre', controller.insertProfileGenre)
 
+router.get('/tierData', controller.tierData)
+
 module.exports = router;
