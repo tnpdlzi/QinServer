@@ -99,7 +99,7 @@ exports.insertProfileGame = (req, res) => {
 }
 
 exports.insertProfileGenre = (req, res) => {
-    let sql = 'INSERT INTO UserGame VALUES (null, ?, ?, ?, NOW(), 0)';
+    let sql = 'INSERT INTO GenreLike VALUES (null, ?, ?, ?, NOW(), 0)';
 
     const uID = req.body.uID;
     const genre = req.body.genre;
@@ -112,7 +112,8 @@ exports.insertProfileGenre = (req, res) => {
         (err, rows, fields) => {
 
             res.send(rows);
-
+            console.log("쿼리값 출력~~~~~~~~~");
+            console.log(rows);
         }
     )
 }
@@ -121,13 +122,99 @@ exports.tierData = (req, res) => {
     let game = req.query.game;
 
     connection.query(
-        'SELECT tier FROM Tier WHERE game = \'' + game + '\';',
+        'SELECT tier FROM Tier WHERE game = \'' + game + '\' ORDER BY orderNum;',
         function (error, results, fields) {
             if (error) {
                 console.log(error);
             }
             res.send(results);
 
+        }
+    )
+}
+
+exports.editIntro = (req, res) => {
+    let sql = 'UPDATE User SET intro= ? WHERE uID = ?';
+
+    const uID = req.body.uID;
+    const intro = req.body.intro;
+
+    let params = [intro, uID];
+
+    connection.query(sql, params,
+
+        (err, rows, fields) => {
+
+            res.send(rows);
+        }
+    )
+}
+
+exports.editProfileGame = (req, res) => {
+    let sql = 'UPDATE UserGame SET game=?,tierID=?,gameID=? WHERE usergameID = ?';
+
+    const game = req.body.game;
+    const tierID = req.body.tierID;
+    const gameID = req.body.gameID;
+    const usergameID = req.body.usergameID;
+
+    let params = [game, tierID, gameID, usergameID];
+
+    connection.query(sql, params,
+
+        (err, rows, fields) => {
+
+            res.send(rows);
+        }
+    )
+}
+
+exports.editProfileGenre = (req, res) => {
+    let sql = 'UPDATE GenreLike SET genre=?,gDegree=? WHERE gLikeID = ?';
+
+    const genre = req.body.genre;
+    const gDegree = req.body.gDegree;
+    const gLikeID = req.body.gLikeID;
+
+    let params = [genre, gDegree, gLikeID];
+
+    connection.query(sql, params,
+
+        (err, rows, fields) => {
+
+            res.send(rows);
+        }
+    )
+}
+
+exports.deleteProfileGame = (req, res) => {
+    let sql = 'DELETE FROM UserGame WHERE usergameID = ?';
+
+    const usergameID = req.body.usergameID;
+
+    let params = [usergameID];
+
+    connection.query(sql, params,
+
+        (err, rows, fields) => {
+
+            res.send(rows);
+        }
+    )
+}
+
+exports.deleteProfileGenre = (req, res) => {
+    let sql = 'DELETE FROM GenreLike WHERE gLikeID = ?';
+
+    const gLikeID = req.body.gLikeID;
+
+    let params = [gLikeID];
+
+    connection.query(sql, params,
+
+        (err, rows, fields) => {
+
+            res.send(rows);
         }
     )
 }

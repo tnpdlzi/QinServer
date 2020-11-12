@@ -12,4 +12,11 @@ router.post('/insertProfileGenre', controller.insertProfileGenre)
 
 router.get('/tierData', controller.tierData)
 
+router.post('/editIntro', controller.editIntro)
+router.post('/editProfileGame', controller.editProfileGame)
+router.post('/editProfileGenre', controller.editProfileGenre)
+
+router.post('/deleteProfileGame', controller.deleteProfileGame)
+router.post('/deleteProfileGenre', controller.deleteProfileGenre)
+
 module.exports = router;
