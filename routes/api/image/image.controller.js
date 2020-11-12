@@ -91,8 +91,8 @@ const Storage = multer.diskStorage({
 //     res.status(200).send('to upload image use this  /api/upload.');
 //   });
   
-exports.upload('/upload', (req, res) => {
-    let upload = multer({storage: Storage}).single('picture');
+exports.upload = (req, res) => {
+    let upload = multer({storage: Storage}).single('photo');
     upload(req, res, function (err) {
       if (!req.file) {
         return res.send('Please select an image to upload');
@@ -103,6 +103,7 @@ exports.upload('/upload', (req, res) => {
       }
       // Display uploaded image for user validation
       res.send(req.file.path); // send uploaded image
+      console.log('req.file.path...............' + req.file.path)
     });
-  });
+  };
   
