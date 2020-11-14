@@ -3,6 +3,9 @@ const data = fs.readFileSync('./database.json'); // app.js와 같은 폴더 안�
 const conf = JSON.parse(data); // data에 json 형식으로 저장되어있는 것을 풀어서 conf에 저장한다.
 const mysql = require('mysql'); // mysql모듈 선언
 const multer = require('multer');
+multer({
+  limits: {fieldSize: 25 * 1024 * 1024},
+});
 
 const connection = mysql.createConnection({ // mysql과 연결해주는 컨넥션을 생성.
     // database.json에 있는걸 풀어서 data로, data를 풀어서 conf로 저장했으니 database.json안에 있는 정보를 가져다 연결해준다 라는 것.
@@ -80,7 +83,7 @@ const connection = mysql.createConnection({ // mysql과 연결해주는 컨넥�
 
 const Storage = multer.diskStorage({
     destination(req, file, callback) {
-      callback(null, '../../../upload');
+      callback(null, '/home/tester/QinServer/upload');
     },
     filename(req, file, callback) {
       callback(null, `${file.fieldname}_${Date.now()}_${file.originalname}`);
@@ -91,11 +94,19 @@ const Storage = multer.diskStorage({
 //     res.status(200).send('to upload image use this  /api/upload.');
 //   });
   
-exports.upload = (req, res) => {
-    let upload = multer({storage: Storage}).single('photo');
+exports.uploads = (req, res) => {
+  console.log('req.........')
+  console.log('req.file.........')
+  console.log(req.file)
+  console.log(req.files)
+  console.log(req.files.photo)
+  console.log('req.files.photo.path.........' + req.files.photo.path)
+
+
+const upload = multer({storage: Storage}).single('photo');
     upload(req, res, function (err) {
       if (!req.file) {
-        return res.send('Please select an image to upload');
+        return res.send('Please select an image to upload........' + JSON.stringify(req.body));
       } else if (err instanceof multer.MulterError) {
         return res.send(err);
       } else if (err) {
