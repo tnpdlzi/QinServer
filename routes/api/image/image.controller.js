@@ -93,7 +93,8 @@ const Storage = multer.diskStorage({
 //   app.get('/', (req, res) => {
 //     res.status(200).send('to upload image use this  /api/upload.');
 //   });
-  
+const upload = multer({storage: Storage}).single('photo');
+
 exports.uploads = (req, res) => {
   console.log('req.........')
   console.log('req.file.........')
@@ -102,8 +103,6 @@ exports.uploads = (req, res) => {
   console.log(req.files.photo)
   console.log('req.files.photo.path.........' + req.files.photo.path)
 
-
-const upload = multer({storage: Storage}).single('photo');
     upload(req, res, function (err) {
       if (!req.file) {
         return res.send('Please select an image to upload........' + JSON.stringify(req.body));
@@ -113,8 +112,37 @@ const upload = multer({storage: Storage}).single('photo');
         return res.send(err);
       }
       // Display uploaded image for user validation
-      res.send(req.file.path); // send uploaded image
-      console.log('req.file.path...............' + req.file.path)
+      // res.send(req.file.path); // send uploaded image
+      // console.log('req.file.path...............' + req.file.path)
     });
+
+    if(req.files != null){
+            fn = req.files.photo.path;
+        } else {
+            fn = 'noImage';
+        }
+
+        console.log('filename...............' + fn)
+        console.log('uID...............' + req.files.photo.name)
+
+        let sql = 'UPDATE User SET image = ? WHERE uID = ?';
+
+        // let image = 'image/' + fn;
+
+        let params = [fn, req.files.photo.name];
+
+        connection.query(sql, params,
+
+          (err, rows, fields) => {
+            if(err){
+                console.log('image connection err................' + err)
+            }
+
+              res.send(rows);
+              console.log(rows);
+
+          }
+
+        )
   };
   

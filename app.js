@@ -6,8 +6,6 @@ const cors = require('cors'); // 한 호스팅 안에서 각기 다른 포트로
 const bodyParser = require('body-parser'); // body에 있는 내용을 받아오는 모듈. rest api 제작할 때 사용
 const app = express(); // express 선언
 const port = process.env.PORT || 8080; // port 중에서 8000번 포트 사용
-const multer = require('multer');
-
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 //cors 사용
@@ -18,9 +16,7 @@ app.use(formData.parse());
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-multer({
-  limits: {fieldSize: 25 * 1024 * 1024},
-});
+
 
 /* use router class */
 const user = require('./routes/api/user/index'); // user 모듈을 가져다 쓰겠다. 이렇게 선언함으로써 user api가 동작하게 됨. 다른 모듈도 똑같이 여기서 이런식으로 선언해 줘야 함
@@ -40,6 +36,7 @@ app.use('/category', category);
 app.use('/chat', chat);
 app.use('/mail', mail);
 app.use('/image', image);
+app.use('/photo', express.static('../../../'));
 
 
 app.listen(port, () => console.log(`Listening on port ${port}`)); // 서버 가동시켜줌
