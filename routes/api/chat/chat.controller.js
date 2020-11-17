@@ -57,7 +57,7 @@ io.on('connection', (socket) => {
 
     //DB에서 채팅방별 메시지 모두 불러오기
     socket.on('load Message', (chatID) => {
-        let messageListSql = "SELECT Message.sendTime, Message.message, User.userName, User.uID FROM User, Message where (Message.uID = User.uID AND chatID = " + chatID + ") ORDER BY Message.sendTime";
+        let messageListSql = "SELECT Message.sendTime, Message.message, User.userName, User.uID, User.image FROM User, Message where (Message.uID = User.uID AND chatID = " + chatID + ") ORDER BY Message.sendTime";
         connection.query(messageListSql, function (err, results, fields) {
             //console.log(results);
             if(results.length > 0)
@@ -68,17 +68,20 @@ io.on('connection', (socket) => {
     //보낸 메시지 받아서 DB로 저장
     socket.on('send Message', (msg) => {
         //console.log(msg);
-        io.emit('send Message', msg);
         let getMessageSql = "INSERT INTO Message(chatID, uID, sendTime, message) VALUES(" + msg.chatID + ", '"+ msg.uID +"','"+ msg.sendTime +"','" + msg.message + "')";
         connection.query(getMessageSql, function (err, results, fields) {
             //console.log(results);
         });
-        
+        let messageSql = "SELECT userName, image FROM User where uID = " + msg.uID;
+        connection.query(messageSql, function (err, results, fields) {
+            //console.log(Object.assign(msg, results[0]));
+            io.emit('send Message', Object.assign(msg, results[0]));
+        });
     })
 
     //채팅방 멤버 불러오기
     socket.on('load Member', (chatID) => {
-        let getMemberSql = "SELECT ChatMember.uID, User.userName FROM User, ChatMember where ChatMember.uID = User.uID AND chatID = " + chatID + " AND baned = 0 ORDER BY User.userName";
+        let getMemberSql = "SELECT ChatMember.uID, User.userName, User.image FROM User, ChatMember where ChatMember.uID = User.uID AND chatID = " + chatID + " AND baned = 0 ORDER BY User.userName";
         connection.query(getMemberSql, (err, results, fields) => {
             //console.log(results);
             if(results.length > 0)
