@@ -35,23 +35,31 @@ io.on('connection', (socket) => {
     
     //DB에서 채팅방 리스트 불러오기
     socket.on('load chatList', (uID) => {
-        let chatListSql = "SELECT * FROM" +
-        "(" +
-        "SELECT Tl.*, Tm.sendTime, Tm.message FROM (SELECT * FROM ChatList AS tl WHERE chatID IN (SELECT chatID FROM ChatMember WHERE uID = "+ uID + " && baned = 0)) AS Tl, Message AS Tm WHERE Tm.chatID = Tl.chatID" +
-        ") AS TT1, " +
-        "(SELECT TT.chatID, MAX(TT.SendTime) AS max_time FROM (SELECT Tl.chatID, Tl.chatName, Tm.sendTime, Tm.message FROM (SELECT * FROM ChatList AS tl WHERE chatID IN (SELECT chatID FROM ChatMember WHERE uID = " + uID + " && baned = 0)) AS Tl, Message AS Tm WHERE Tm.chatID = Tl.chatID) AS TT GROUP BY chatID" +
-        ") AS TT2" +
-        " WHERE TT1.sendTime = TT2.max_time AND TT1.chatID = TT2.chatID";
-        //let chatListSql = "SELECT ChatList.chatID, chatName FROM ChatList, ChatMember where (ChatMember.uID = " + uID + " AND ChatMember.chatID = ChatList.chatID)";
-        console.log(chatListSql);
-        connection.query(chatListSql, function (err, results, fields) {
+        let hashChatListSql = "SELECT * FROM MaxMessage AS MM WHERE chatID IN(SELECT chatID FROM ChatMember WHERE uID = '" + uID + "') AND MM.onetoone = 0;"
+        let oneChatListSql = "SELECT * FROM MaxMessage AS MM, OneChatImage AS OC, ChatMember WHERE MM.chatID = OC.chatID AND OC.uID <> '" + uID + "' AND OC.chatID = ChatMember.chatID AND ChatMember.uID = '" + uID + "';"
+        let hashData; //hashChatListSql 쿼리 결과 값
+        let oneData; //oneChatListSql 쿼리 결과 값
+
+        connection.query(hashChatListSql, function (err, results, fields) {
             if(!err){
-                console.log(results);
-                socket.emit('return chatList', results);
+                hashData = results;
+                //console.log(hashData);
             }else{
                 console.log(err);
             }
-            
+        });
+        
+        connection.query(oneChatListSql, function (err, results, fields) {
+            if(!err){
+                oneData = results;
+                //console.log(oneData);
+
+                Array.prototype.push.apply(hashData, oneData);
+                //console.log(hashData);
+                socket.emit('return chatList', hashData);
+            }else{
+                console.log(err);
+            }
         });
     })
 
