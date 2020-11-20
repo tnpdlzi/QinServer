@@ -284,7 +284,7 @@ exports.login = (req,res,next) => {
     let inputPassword = req.query.password;
     let dbPassword, salt, userName, loginBy, good, bad, intro, uID;
 
-    connection.query('SELECT uID, userPW, loginBy, salt, intro, good, bad, userID, userName FROM User WHERE userID = \'' + userID + '\';', function(error, results, fields) { // 여기선 es6 방식을 쓰지 않았다. 위의 = (err, rows, fields) => 이거랑 똑같은 거다.
+    connection.query('SELECT uID, userPW, loginBy, salt, intro, good, bad, userID, userName, image FROM User WHERE userID = \'' + userID + '\';', function(error, results, fields) { // 여기선 es6 방식을 쓰지 않았다. 위의 = (err, rows, fields) => 이거랑 똑같은 거다.
 
         if (error) {
             console.log('다음은 에러메시지이다 : ' + error);
@@ -314,6 +314,7 @@ exports.login = (req,res,next) => {
         bad = JSON.stringify(results[0].bad); // loginBy 받아와 저장
         intro = JSON.stringify(results[0].intro); // loginBy 받아와 저장
         uID = JSON.stringify(results[0].uID); // loginBy 받아와 저장
+        image = JSON.stringify(results[0].image); // loginBy 받아와 저장
 
         let hashPassword = crypto.createHash("sha512").update(inputPassword + salt).digest("hex"); // 암호화를 통한 동일 여부 검사
 
@@ -323,7 +324,7 @@ exports.login = (req,res,next) => {
             //  console.log(dbPassword + 'db성공');
             //  console.log(salt + '솔트');
 
-            let sendData = {uID: uID, userName: userName, userID: userID, loginBy: loginBy, good: good, bad: bad, intro: intro}; // 같다면 userName, userID, loginBy를 다시 클라이언트로 반환
+            let sendData = {uID: uID, userName: userName, userID: userID, loginBy: loginBy, good: good, bad: bad, intro: intro, image: image}; // 같다면 userName, userID, loginBy를 다시 클라이언트로 반환
 
             // console.log(sendData)
 
