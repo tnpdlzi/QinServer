@@ -16,11 +16,11 @@ const connection = mysql.createPool({
     dateStrings : true
 });
 
-exports.loadChatList = (req, res) => {      //미완성 부분 (아직 안씀)
+exports.loadChatList = (req, res) => {      //사용하지 않음
     let uID = req.body.uID;
     let chatListSql = "SELECT chatName FROM chatlist";
     connection.query(chatListSql, function(err, results, fields){
-        console.log(results);
+        //console.log(results);
         res.send(results);
     });
 }
@@ -53,7 +53,6 @@ io.on('connection', (socket) => {
             if(!err){
                 oneData = results;
                 //console.log(oneData);
-
                 Array.prototype.push.apply(hashData, oneData);
                 //console.log(hashData);
                 socket.emit('return chatList', hashData);
@@ -109,12 +108,12 @@ io.on('connection', (socket) => {
 
     //방 나가기
     socket.on('exit Room', (chatID, uID) => {
-        console.log(chatID, uID);
+        //console.log(chatID, uID);
         let exitRoomSql = "DELETE FROM ChatMember where chatID = " + chatID + " AND uID = " + uID
         connection.query(exitRoomSql, (err, results, fields) => {
             if(!err){
                 //채팅방 인원수 감소
-                connection.query("UPDATE ChatList SET total = total - 1 where chatID = " + chatID , (err, results, fields) => {
+                connection.query("UPDATE ChatList SET total = (SELECT COUNT(*) FROM ChatMember where chatID = '" + chatID + "') where chatID = " + chatID , (err, results, fields) => {
                 }
             )}
             else
@@ -124,10 +123,16 @@ io.on('connection', (socket) => {
 
     //강퇴하기
     socket.on('ban Member', (chatID, banID) => {
-        console.log(chatID, banID);
+        //console.log(chatID, banID);
         let banMemberSql = "UPDATE ChatMember SET baned = 1 where chatID = '" + chatID + "' AND uID = '" + banID + "'";
         connection.query(banMemberSql, (err, results, fields) => {
-
+            if(!err){
+                //채팅방 인원수 감소
+                connection.query("UPDATE ChatList SET total = (SELECT COUNT(*) FROM ChatMember where chatID = '" + chatID + "' AND baned = 0) where chatID = " + chatID , (err, results, fields) => {
+                }
+            )}
+            else
+                console.log(err);
         });
     })
 })
