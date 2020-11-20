@@ -35,7 +35,7 @@ io.on('connection', (socket) => {
     
     //DB에서 채팅방 리스트 불러오기
     socket.on('load chatList', (uID) => {
-        let hashChatListSql = "SELECT * FROM MaxMessage AS MM WHERE chatID IN(SELECT chatID FROM ChatMember WHERE uID = '" + uID + "') AND MM.onetoone = 0;"
+        let hashChatListSql = "SELECT * FROM MaxMessage AS MM WHERE chatID IN(SELECT chatID FROM ChatMember WHERE uID = '" + uID + "' AND baned = 0) AND MM.onetoone = 0;"
         let oneChatListSql = "SELECT * FROM MaxMessage AS MM, OneChatImage AS OC, ChatMember WHERE MM.chatID = OC.chatID AND OC.uID <> '" + uID + "' AND OC.chatID = ChatMember.chatID AND ChatMember.uID = '" + uID + "';"
         let hashData; //hashChatListSql 쿼리 결과 값
         let oneData; //oneChatListSql 쿼리 결과 값
