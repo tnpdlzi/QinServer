@@ -249,16 +249,66 @@ exports.deleteProfileGenre = (req, res) => {
 }
 
 exports.checkChatList = (req, res) => {
-    let uID = req.query.uID;
+    let uID1 = req.query.uID1;
+    let uID2 = req.query.uID2;
 
     connection.query(
-        'SELECT chatID FROM OneChatImage WHERE uID = \'' + uID + '\' ;',
+        'SELECT chatID, count(*) as num FROM OneChatImage WHERE uID =' + uID1 +' or uID = '+ uID2 + ' GROUP BY chatID HAVING num > 1;',
         function (error, results, fields) {
             if (error) {
                 console.log(error);
             }
             res.send(results);
 
+        }
+    )
+}
+
+exports.getChatID = (req, res) => {
+    let uID = req.query.uID;
+
+    connection.query(
+        'SELECT MAX(chatID) AS chatID FROM ChatList WHERE ruID =' + uID + ' AND onetoone = 1',
+        function (error, results, fields) {
+            if (error) {
+                console.log(error);
+            }
+            res.send(results);
+
+        }
+    )
+}
+
+exports.createChatList = (req, res) => {
+    let sql = 'INSERT INTO ChatList VALUES (null, "", null, 2, NOW(), 0, 1, ?, 2)';
+
+    const uID = req.body.uID;
+
+    let params = [uID];
+
+    connection.query(sql, params,
+
+        (err, rows, fields) => {
+
+            res.send(rows);
+            console.log(rows);
+        }
+    )
+}
+
+exports.createChatMember = (req, res) => {
+    let sql = 'INSERT INTO ChatMember VALUES (?, 0, ?)';
+
+    const uID = req.body.uID;
+    const chatID = req.body.chatID;
+
+    let params = [uID, chatID];
+
+    connection.query(sql, params,
+
+        (err, rows, fields) => {
+
+            res.send(rows);
         }
     )
 }

@@ -23,5 +23,8 @@ router.post('/deleteProfileGame', controller.deleteProfileGame)
 router.post('/deleteProfileGenre', controller.deleteProfileGenre)
 
 router.get('/checkChatList', controller.checkChatList)
+router.get('/getChatID', controller.getChatID)
+router.post('/createChatList', controller.createChatList)
+router.post('/createChatMember', controller.createChatMember)
 
 module.exports = router;
