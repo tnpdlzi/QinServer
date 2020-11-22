@@ -16,11 +16,11 @@ const connection = mysql.createPool({
     dateStrings : true
 });
 
-exports.loadChatList = (req, res) => {      //미완성 부분 (아직 안씀)
+exports.loadChatList = (req, res) => {      //사용하지 않음
     let uID = req.body.uID;
     let chatListSql = "SELECT chatName FROM chatlist";
     connection.query(chatListSql, function(err, results, fields){
-        console.log(results);
+        //console.log(results);
         res.send(results);
     });
 }
@@ -35,29 +35,36 @@ io.on('connection', (socket) => {
     
     //DB에서 채팅방 리스트 불러오기
     socket.on('load chatList', (uID) => {
-        let chatListSql = "SELECT * FROM" +
-        "(" +
-        "SELECT Tl.*, Tm.sendTime, Tm.message FROM (SELECT * FROM ChatList AS tl WHERE chatID IN (SELECT chatID FROM ChatMember WHERE uID = "+ uID + " && baned = 0)) AS Tl, Message AS Tm WHERE Tm.chatID = Tl.chatID" +
-        ") AS TT1, " +
-        "(SELECT TT.chatID, MAX(TT.SendTime) AS max_time FROM (SELECT Tl.chatID, Tl.chatName, Tm.sendTime, Tm.message FROM (SELECT * FROM ChatList AS tl WHERE chatID IN (SELECT chatID FROM ChatMember WHERE uID = " + uID + " && baned = 0)) AS Tl, Message AS Tm WHERE Tm.chatID = Tl.chatID) AS TT GROUP BY chatID" +
-        ") AS TT2" +
-        " WHERE TT1.sendTime = TT2.max_time AND TT1.chatID = TT2.chatID";
-        //let chatListSql = "SELECT ChatList.chatID, chatName FROM ChatList, ChatMember where (ChatMember.uID = " + uID + " AND ChatMember.chatID = ChatList.chatID)";
-        console.log(chatListSql);
-        connection.query(chatListSql, function (err, results, fields) {
+        let hashChatListSql = "SELECT * FROM MaxMessage AS MM WHERE chatID IN(SELECT chatID FROM ChatMember WHERE uID = '" + uID + "' AND baned = 0) AND MM.onetoone = 0;"
+        let oneChatListSql = "SELECT * FROM MaxMessage AS MM, OneChatImage AS OC, ChatMember WHERE MM.chatID = OC.chatID AND OC.uID <> '" + uID + "' AND OC.chatID = ChatMember.chatID AND ChatMember.uID = '" + uID + "';"
+        let hashData; //hashChatListSql 쿼리 결과 값
+        let oneData; //oneChatListSql 쿼리 결과 값
+
+        connection.query(hashChatListSql, function (err, results, fields) {
             if(!err){
-                console.log(results);
-                socket.emit('return chatList', results);
+                hashData = results;
+                //console.log(hashData);
             }else{
                 console.log(err);
             }
-            
+        });
+        
+        connection.query(oneChatListSql, function (err, results, fields) {
+            if(!err){
+                oneData = results;
+                //console.log(oneData);
+                Array.prototype.push.apply(hashData, oneData);
+                //console.log(hashData);
+                socket.emit('return chatList', hashData);
+            }else{
+                console.log(err);
+            }
         });
     })
 
     //DB에서 채팅방별 메시지 모두 불러오기
     socket.on('load Message', (chatID) => {
-        let messageListSql = "SELECT Message.sendTime, Message.message, User.userName, User.uID FROM User, Message where (Message.uID = User.uID AND chatID = " + chatID + ") ORDER BY Message.sendTime";
+        let messageListSql = "SELECT Message.sendTime, Message.message, User.userName, User.uID, User.image FROM User, Message where (Message.uID = User.uID AND chatID = " + chatID + ") ORDER BY Message.sendTime";
         connection.query(messageListSql, function (err, results, fields) {
             //console.log(results);
             if(results.length > 0)
@@ -68,17 +75,20 @@ io.on('connection', (socket) => {
     //보낸 메시지 받아서 DB로 저장
     socket.on('send Message', (msg) => {
         //console.log(msg);
-        io.emit('send Message', msg);
         let getMessageSql = "INSERT INTO Message(chatID, uID, sendTime, message) VALUES(" + msg.chatID + ", '"+ msg.uID +"','"+ msg.sendTime +"','" + msg.message + "')";
         connection.query(getMessageSql, function (err, results, fields) {
             //console.log(results);
         });
-        
+        let messageSql = "SELECT userName, image FROM User where uID = " + msg.uID;
+        connection.query(messageSql, function (err, results, fields) {
+            //console.log(Object.assign(msg, results[0]));
+            io.emit('send Message', Object.assign(msg, results[0]));
+        });
     })
 
     //채팅방 멤버 불러오기
     socket.on('load Member', (chatID) => {
-        let getMemberSql = "SELECT ChatMember.uID, User.userName FROM User, ChatMember where ChatMember.uID = User.uID AND chatID = " + chatID + " AND baned = 0 ORDER BY User.userName";
+        let getMemberSql = "SELECT ChatMember.uID, User.userName, User.image FROM User, ChatMember where ChatMember.uID = User.uID AND chatID = " + chatID + " AND baned = 0 ORDER BY User.userName";
         connection.query(getMemberSql, (err, results, fields) => {
             //console.log(results);
             if(results.length > 0)
@@ -98,12 +108,12 @@ io.on('connection', (socket) => {
 
     //방 나가기
     socket.on('exit Room', (chatID, uID) => {
-        console.log(chatID, uID);
+        //console.log(chatID, uID);
         let exitRoomSql = "DELETE FROM ChatMember where chatID = " + chatID + " AND uID = " + uID
         connection.query(exitRoomSql, (err, results, fields) => {
             if(!err){
                 //채팅방 인원수 감소
-                connection.query("UPDATE ChatList SET total = total - 1 where chatID = " + chatID , (err, results, fields) => {
+                connection.query("UPDATE ChatList SET total = (SELECT COUNT(*) FROM ChatMember where chatID = '" + chatID + "') where chatID = " + chatID , (err, results, fields) => {
                 }
             )}
             else
@@ -113,10 +123,16 @@ io.on('connection', (socket) => {
 
     //강퇴하기
     socket.on('ban Member', (chatID, banID) => {
-        console.log(chatID, banID);
+        //console.log(chatID, banID);
         let banMemberSql = "UPDATE ChatMember SET baned = 1 where chatID = '" + chatID + "' AND uID = '" + banID + "'";
         connection.query(banMemberSql, (err, results, fields) => {
-
+            if(!err){
+                //채팅방 인원수 감소
+                connection.query("UPDATE ChatList SET total = (SELECT COUNT(*) FROM ChatMember where chatID = '" + chatID + "' AND baned = 0) where chatID = " + chatID , (err, results, fields) => {
+                }
+            )}
+            else
+                console.log(err);
         });
     })
 })
