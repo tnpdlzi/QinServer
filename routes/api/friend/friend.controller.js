@@ -79,6 +79,34 @@ exports.profileGenre = (req, res) => {
     )
 }
 
+exports.gameList = (req, res) => {
+
+    connection.query(
+        'SELECT game FROM Game;',
+        function (error, results, fields) {
+            if (error) {
+                console.log(error);
+            }
+            res.send(results);
+
+        }
+    )
+}
+
+exports.genreList = (req, res) => {
+
+    connection.query(
+        'SELECT genre FROM Game;',
+        function (error, results, fields) {
+            if (error) {
+                console.log(error);
+            }
+            res.send(results);
+
+        }
+    )
+}
+
 exports.insertProfileGame = (req, res) => {
     let sql = 'INSERT INTO UserGame VALUES (null, ?, ?, ?, ?, NOW(), 0)';
 
@@ -132,6 +160,7 @@ exports.tierData = (req, res) => {
         }
     )
 }
+
 
 exports.editIntro = (req, res) => {
     let sql = 'UPDATE User SET intro= ? WHERE uID = ?';
@@ -215,6 +244,21 @@ exports.deleteProfileGenre = (req, res) => {
         (err, rows, fields) => {
 
             res.send(rows);
+        }
+    )
+}
+
+exports.checkChatList = (req, res) => {
+    let uID = req.query.uID;
+
+    connection.query(
+        'SELECT chatID FROM OneChatImage WHERE uID = \'' + uID + '\' ;',
+        function (error, results, fields) {
+            if (error) {
+                console.log(error);
+            }
+            res.send(results);
+
         }
     )
 }
